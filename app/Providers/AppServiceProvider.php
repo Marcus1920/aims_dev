@@ -472,6 +472,9 @@ class AppServiceProvider extends ServiceProvider
 
             $noPermissions = Permission::all();
             $view->with('noPermissions',$noPermissions);
+            
+            $noForms = 0;
+            $view->with('noForms',$noForms);
 
 
            $userViewAffiliationPermission   = \DB::table('group_permissions')

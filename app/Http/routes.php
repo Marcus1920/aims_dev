@@ -1070,12 +1070,10 @@ Route::post('session/ajaxCheck', ['uses' => 'SessionController@ajaxCheck', 'as' 
 Route::post('resetSession', ['uses' => 'SessionController@resetSession', 'as' => 'resetSession']);
 
 
-
-
-
-
-
-
-
-
-
+Route::get('list-forms', ['middleware' => 'resetLastActive', function () {
+    return view('forms.list');
+}]);
+Route::get('forms-list', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@index']);
+Route::get('forms/{id}', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@edit']);
+Route::post('addForm', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@store']);
+Route::post('updateForm', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@update']);

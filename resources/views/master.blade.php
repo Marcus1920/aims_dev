@@ -236,6 +236,8 @@
                             @if(isset($userViewPermissionsPermission) && $userViewPermissionsPermission->permission_id =='12')
                               <li><a href="{{ url('list-permissions') }}"><span class="badge badge-r">{{ count($noPermissions,0) }}</span>Permissions</a></li>
                              @endif
+                             
+                             <li><a href="{{ url('list-forms') }}"><span class="badge badge-r">{{ count($noForms,0) }}</span>Forms</a></li>
 
                         </ul>
                     </li>

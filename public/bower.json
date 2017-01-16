@@ -6,6 +6,7 @@
     "Elie Ishimwe"
   ],
   "description": "Case Management Console",
+  "directory": "bower_components",
   "keywords": [
     "Case",
     "Transnet"
