@@ -1,6 +1,3 @@
-<?php
-  
-?>
 @extends('master')
 
 @section('content')
@@ -24,9 +21,10 @@
 		<table class="table tile table-striped" id="formsTable">
 			<thead>
 				<tr>
-					<th>Id</th>
+					<th style="width: 3em;">Id</th>
 					<th>name</th>
 					<th>Purpose</th>
+					<th style="width: 3em;">Fields</th>
 					<th>Actions</th>
 				</tr>
 			</thead>
@@ -62,13 +60,14 @@
                     {data: 'id', name: 'forms.id'},
                     {data: 'name', name: 'forms.name'},
                     {data: 'purpose', name: 'forms.purpose'},
+                    {data: 'cntFields', name: 'cntFields'},
                     {data: 'actions',  name: 'actions'}
 
                ],
 
             "aoColumnDefs": [
                 { "bSearchable": false, "aTargets": [0,3] },
-                { "bSortable": false, "aTargets": [3] }
+                { "bSortable": false, "aTargets": [4] }
             ]
 
          });

@@ -28,7 +28,7 @@
             <hr>
             <h3 class="block-title">Fields</h3>
             <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnAddField">Add Field</a>
-            <span id="cntFields">0</span>
+            <!--<span id="cntFields">0</span>-->
             <div class="form-group" id="formFields">
             
             </div>
@@ -54,13 +54,14 @@ function launchUpdateFormModal(id) {
 	$(".modal-body #formId").val(id);
 	//$("#formFields").remove(".fieldTemplate");
 	$(".fieldTemplateClone").remove();
-	$("#cntFields").text($(".fieldTemplateClone").length);
+	/*$("#cntFields").text($(".fieldTemplateClone").length);*/
 	cntFields = 0;
 	$.ajax({
 		type    :"GET",
 		dataType:"json",
 		url     :"{!! url('/forms/"+ id + "')!!}",
 		success :function(data) {
+			console.log("data - ", data);
 			if(data[0] !== null) {
 				$("#modalEditForm #name").val(data[0].name);
 				$("#modalEditForm #purpose").val(data[0].purpose);
@@ -68,13 +69,19 @@ function launchUpdateFormModal(id) {
 			else {
 				$("#modalEditForm #name").val('');
 			}
+			if(data[1] !== null) {
+				for (var i = 0; i < data[1].length; i++) {
+					addField(data[1][i]);
+				}
+			}
 		}
 	});	
 }
 
-function addField() {
+function addField(vals) {
+	console.log("addField(vals) vals - ", vals);
 	cntFields++;
-	$("#cntFields").text(cntFields);
+	/*$("#cntFields").text(cntFields);*/
 	var template = $(".fieldTemplate").clone().get(0);
 	template.className = "fieldTemplateClone";
 	//template.css("display: block !important");
@@ -82,6 +89,12 @@ function addField() {
 	$("#formFields").append(template);
 	updateFields();
 	///$(template).on("mousedown", startDrag);
+	if (vals) {
+		$(template).find("#fieldId").val(vals.id);
+		$(template).find("#fieldName").val(vals.name);
+		$(template).find("#fieldLabel").val(vals.label);
+		$(template).find("#fieldType").val(vals.type);
+	}
 }
 
 function deleteField(index) {

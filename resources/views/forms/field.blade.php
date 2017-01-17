@@ -9,7 +9,7 @@
 		</div>
 	<!--<hr style="width: 75%"><br>-->
 	<div>
-		{!! Form::hidden('field[id][]',-1,['class' => 'form-control input-sm','id' => 'fieldId']) !!}
+		{!! Form::hidden('field[id][]',NULL,['class' => 'form-control input-sm','id' => 'fieldId']) !!}
 		<div>
 			<div style="clear: both;">
 				{!! Form::label('Name', 'Name', array('class' => 'col-md-2 control-label')) !!}
