@@ -22,7 +22,7 @@ class FormsController extends Controller {
   }
   
   public function store(FormsRequest $request) {
-		$form             = new Form();
+  	$form             = new Form();
 		$form->name       = $request['name'];
 		$form->slug       = $request['slug'];
 		$form->purpose   = $request['purpose'];
@@ -38,7 +38,9 @@ class FormsController extends Controller {
     $form->purpose   = $request['purpose'];
     $form->updated_by   = \Auth::user()->id;
     $form->save();
+    $form->saveFields($request);
     \Session::flash('success', 'well done! Form '.$request['name'].' has been successfully updated!');
+    //\Session::flash('success', "REQUEST<pre>".print_r($request, 1)."</pre>");
     return redirect()->back();
   }
 }

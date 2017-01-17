@@ -2329,6 +2329,25 @@ div.dataTables_processing {
 
 }
 
-
-
+.wSort {
+	/*display: inline-block;*/
+	margin-top: -25px;
+	white-space: nowrap;
+	width: 50px;
+}
+.wSort a {
+	background-color: black !important;
+	color: green;
+	font-weight: bold !important;
+	padding: 0 !important;
+	width: 2em;
+}
+a.sort_asc {
+	/*background: url(../bower_components/datatables-plugins/integration/bootstrap/images/sort_asc.png) !important;*/
+	line-height: 1em;
+}
+a.sort_desc {
+	/*background: url(../bower_components/datatables-plugins/integration/bootstrap/images/sort_desc.png) !important;*/
+	line-height: 1em;
+}
 
