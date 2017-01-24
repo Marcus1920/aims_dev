@@ -9,6 +9,7 @@ use App\Form;
 use App\FormField;  
 use App\Http\Requests\FormsRequest;
 use Illuminate\Support\Facades\DB as DB;
+//DB::connection()->disableQueryLog();
 
 class FormsController extends Controller {
 	public function index() {
@@ -28,7 +29,7 @@ class FormsController extends Controller {
 	
 	public function edit($id) {
     $form = Form::where('id',$id)->first();
-    $fields = FormField::select("*")->where('form_id', $id)->get();
+    $fields = FormField::select("*")->where('form_id', $id)->orderBy("order")->get();
     //echo "\$form<pre>".print_r($form, 1)."</pre>";
     //echo "\$fields<pre>".print_r($fields, 1)."</pre>";
    	return [$form, $fields];

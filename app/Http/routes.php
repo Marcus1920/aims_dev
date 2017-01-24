@@ -1077,3 +1077,6 @@ Route::get('forms-list', ['middleware' => 'resetLastActive', 'uses' => 'FormsCon
 Route::get('forms/{id}', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@edit']);
 Route::post('addForm', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@store']);
 Route::post('updateForm', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@update']);
+
+Route::get('forms/database/tables', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getTables']);
+Route::get('forms/database/tables/{name}', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getTable']);
