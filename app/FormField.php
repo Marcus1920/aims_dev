@@ -4,7 +4,7 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class FormField extends Eloquent {
 	protected $table    = 'forms_fields';
-	protected $fillable = ['form_id','label','name','order','type','options'];
+	protected $fillable = ['form_id','label','name','desc','order','type','options'];
 	
 	/*public function saveFields($id) {
 		$saved = true;

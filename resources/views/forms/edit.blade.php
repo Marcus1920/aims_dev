@@ -64,6 +64,8 @@
 <script type="text/javascript">
 var cntFields = 0;
 var tablename = "";
+
+
 function launchUpdateFormModal(id) {
 	console.log("launchUpdateFormModal(id) id - "+id+", fields - ",$(".fieldTemplateClone").length);
 	$(".modal-body #formId").val(id);
@@ -116,6 +118,8 @@ function launchUpdateFormModal(id) {
 				//alert("chkSystem.changed() tbl - "+tbl);
 				if (tbl != "0") selectTable(tbl);
 			});
+			
+			$("a[title!=''],input[title!=''],label[title!='']").tooltip( { track: true } );
 		}
 	});	
 }
@@ -143,6 +147,7 @@ function addField(vals) {
 	////$(template).find("#fieldType").removeAttr("disabled");
 	template.style.display = "block";
 	$("#formFields").append(template);
+	if (!vals) template.scrollIntoView();
 	updateFields();
 	///$(template).on("mousedown", startDrag);
 	$(template).find(".options").find("[class^='opts']").hide();
@@ -150,6 +155,7 @@ function addField(vals) {
 		if (vals.id) $(template).find("[id^=fieldId]").val(vals.id);
 		if (vals.name) $(template).find("[id^=fieldName]").val(vals.name);
 		if (vals.label) $(template).find("[id^=fieldLabel]").val(vals.label);
+		if (vals.desc) $(template).find("[id^=fieldDesc]").val(vals.desc);
 		if (vals.type) {
 			$(template).find("[id^=fieldType]").val(vals.type);
 			selectType(template, vals.type);
@@ -209,6 +215,24 @@ function addField(vals) {
 		addChoice(template);
 	});
 	
+}
+
+function duplicateField(index) {
+	var field = $("#formFields").find(".fieldTemplateClone").get(index);
+	var vals = { type: "" }
+	var type = $(field).find("[id^=fieldType]").val();
+	var newfield = $(field).clone(true).get(0);
+	console.log("duplicateField(index) vals - ", vals);
+	$("#formFields").append(newfield);
+	newfield.scrollIntoView();
+	updateFields();
+	$(newfield).find("input").iCheck("destroy");
+	$(newfield).find("input").iCheck({
+		    checkboxClass: 'icheckbox_minimal',
+		    radioClass: 'iradio_minimal'
+	});
+	$(newfield).find("[id^=fieldType]").val(type);
+	$(newfield).find("[id^=fieldId]").val("");
 }
 
 function deleteField(index) {
@@ -314,6 +338,7 @@ function updateFields() {
 		$(this).find(".sort_asc").off("click");
 		$(this).find(".sort_desc").off("click");
 		$(this).find(".delete").off("click");
+		$(this).find(".duplicate").off("click");
 		$(this).find(".sort_asc").on("click", function(e) {
 			reorder(1, index);
 		});
@@ -322,7 +347,9 @@ function updateFields() {
 		});
 		$(this).find(".delete").on("click", function(e) {
 			deleteField(index);
-			
+		});
+		$(this).find(".duplicate").on("click", function(e) {
+			duplicateField(index);
 		});
 	});
 	

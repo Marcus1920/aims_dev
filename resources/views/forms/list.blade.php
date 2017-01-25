@@ -31,6 +31,7 @@
 		</table>
 	</div>
 </div>
+@include('forms.preview')
 @include('forms.field')
 @include('forms.edit')
 @include('forms.add')

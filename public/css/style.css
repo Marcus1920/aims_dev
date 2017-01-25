@@ -2331,9 +2331,10 @@ div.dataTables_processing {
 
 .wSort {
 	/*display: inline-block;*/
+	float: left;
 	margin-top: -25px;
 	white-space: nowrap;
-	width: 50px;
+	width: 80px;
 }
 .wSort a {
 	background-color: black !important;
@@ -2351,3 +2352,17 @@ a.sort_desc {
 	line-height: 1em;
 }
 
+/*.options div {
+	border: 1px solid red;
+}
+
+.options div div {
+	border: 1px solid yellow;
+	clear: both;
+	white-space: nowrap !important;
+}
+
+.options div div div {
+	border: 1px solid green;
+	white-space: nowrap !important;
+}*/

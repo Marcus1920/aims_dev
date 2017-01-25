@@ -23,7 +23,7 @@ class FormsController extends Controller {
 			->groupBy("forms.id");
 		//\Session::flash('success', "SQL - ".$forms->toSql());
 		return \Datatables::of($forms)
-			->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}});" data-target=".modalEditForm">Edit</a>')
+			->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}});" data-target=".modalEditForm">Edit</a> <a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchPreviewFormModal({{$id}});" data-target=".modalPreviewForm">Preview</a>')
       	->make(true);
 	}
 	
