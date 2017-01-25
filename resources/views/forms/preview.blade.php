@@ -26,10 +26,11 @@ function launchPreviewFormModal(id) {
 		success :function(data) {
 			console.log("data - ", data);
 			if (data[0] !== null) {
-				$(".modal-title").text(data[0].name);
-				$(".modal-header").append("<i>"+data[0].purpose+"</i>");
+				$("#modalPreviewForm .modal-title").text(data[0].name);
+				$("#modalPreviewForm .modal-header i").remove();
+				$("#modalPreviewForm .modal-header").append("<i>"+data[0].purpose+"</i>");
 			}
-			$(".modal-body").empty();
+			$("#modalPreviewForm .modal-body").empty();
 			if (data[1] !== null) {
 				for (var i = 0; i < data[1].length; i++) {
 					/*$(".modal-body").append('<div class="form-group"></div>');
@@ -106,7 +107,7 @@ function launchPreviewFormModal(id) {
 						$(div).append('<textarea class="form-control" rows="'+opts.lines+'"></textarea>');
 					}	else $(div).append(input);
 					$(group).append(div);
-					$(".modal-body").append(group);
+					$("#modalPreviewForm .modal-body").append(group);
 					$('.datetime').datetimepicker({ collapse: false, sideBySide: true });
 					$('.date-only').datetimepicker({ pickTime: false });
 					$('.time-only').datetimepicker({ pickDate: false });
