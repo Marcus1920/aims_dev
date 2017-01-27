@@ -2352,6 +2352,10 @@ a.sort_desc {
 	line-height: 1em;
 }
 
+.iCheck-helper {
+	position: relative !important;
+}
+
 /*.options div {
 	border: 1px solid red;
 }

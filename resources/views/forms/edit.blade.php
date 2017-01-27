@@ -165,10 +165,12 @@ function addField(vals) {
 			console.log("  Updating options - ",vals.options," ("+vals.options.length+"), opts - ",opts," ("+opts.length+")");
 			for (var prop in opts) {
 				var f = $(template).find("[name$='[opts]["+vals.type+"]["+prop+"]']");
-				console.log("    f - ", f);
+				console.log("    f (before) - ", f);
 				if (f.length == 1) {
+					console.log("    f.val (before) - ", f.val());
 					if ((f[0].type == "checkbox" || f[0].type == "radio") && f[0].value == opts[prop]) f.iCheck("check");
 					else f.val(opts[prop]);
+					console.log("    f.val (after) - ", f.val());
 				}
 				else {
 					for (var fi = 0; fi < f.length; fi++) {
@@ -214,7 +216,41 @@ function addField(vals) {
 	$(template).find("[id^='btnAddChoice']").on("click", function(ev) {
 		addChoice(template);
 	});
-	
+}
+
+function checkForm() {
+	console.log("checkForm()");
+	var valid = true;
+	$(".fieldTemplateClone").each(function(i, template) {
+		console.log("  .fieldTemplateClone: i - "+i+", this - ", this);
+		$(this).find(".invalid").hide();
+		$(this).find(".invalid").each(function() {
+			if ($(this).prev().val() == "") {
+				$(this).show();
+				template.scrollIntoView();
+				valid = false;
+			}
+		});
+		//var inputs = $(this).find("[class^='opts']").filter(":visible").find("input");
+		var opts = $(this).find("[class^='opts']").filter(":visible");
+		//console.log("    inputs - ", inputs);
+		/*inputs.each(function(i2, input) {
+			console.log("    inputs["+i2+"] - ", input);
+		});*/
+		opts.find("input").removeClass("error");
+		if (opts.find("[id^=txtMin]")[0] && opts.find("[id^=txtMax]")[0]) {
+			var min = opts.find("[id^=txtMin]")[0];
+			var max = opts.find("[id^=txtMax]")[0];
+			console.log("    min - ",$(min).val(),", max - ", $(max).val());
+			if (Number($(min).val()) > Number($(max).val())) {
+				$(min).addClass("error");
+				$(max).addClass("error");
+				valid = false;
+				min.scrollIntoView();
+			}
+		}
+	});
+	return valid;
 }
 
 function duplicateField(index) {
@@ -355,9 +391,9 @@ function updateFields() {
 	
 	fields.each(function(i, el) {
 		//var el = this;
-		console.log(".fieldTemplate(i, el) i - "+i+", el - ", el);
+		///console.log(".fieldTemplate(i, el) i - "+i+", el - ", el);
 		$(el).find("[name*='field']").each(function(i2, el2) {
-			console.log("  field(i2, el2) i - "+i2+", el2 - ", el2);
+			///console.log("  field(i2, el2) i - "+i2+", el2 - ", el2);
 			el2.name = el2.name.replace(/\[\d*\]/, "["+i+"]");
 			if (el2.id != "") {
 				el2.id = el2.id.replace(/\d*$/, i);
@@ -365,12 +401,12 @@ function updateFields() {
 				lbl = $(el2).siblings("label").first();
 				if (lbl.length == 0) lbl = $(el2).parent().parent().find("label").first();
 				if (lbl.length == 0) lbl = $(el2).parent().parent().parent().find("label").first();
-				console.log("  lbl - ", lbl);
-				console.log("  lbl.text() - ", lbl.text());
-				console.log("  lbl.val() - ", lbl.val());
-				console.log("  for - ", lbl.attr("for"));
+				///console.log("  lbl - ", lbl);
+				///console.log("  lbl.text() - ", lbl.text());
+				///console.log("  lbl.val() - ", lbl.val());
+				///console.log("  for - ", lbl.attr("for"));
 				lbl.attr("for", el2.id);
-				console.log("  for - ", lbl.attr("for"));
+				///console.log("  for - ", lbl.attr("for"));
 			}
 		});
 	});
@@ -380,6 +416,11 @@ $(document).ready(function() {
 	$("#btnAddField").on("click", function (ev) { addField(); });
 	
 	$("input[type=checkbox]").iCheck("destroy");
+	
+	$("#submitUpdateCustomForm").on("click", function (ev) { 
+		ev.preventDefault();
+		if (checkForm()) $("#updateCustomForm").submit();
+	});
 	
 });
 </script>

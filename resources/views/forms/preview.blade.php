@@ -45,6 +45,7 @@ function launchPreviewFormModal(id) {
 					var lbl = document.createElement("label");
 					lbl.className = "col-md-2 control-label";
 					lbl.innerText = data[1][i].label;
+					$(lbl).attr("for", data[1][i].name);
 					//$(lbl).css("white-space", "nowrap");
 					$(group).append(lbl);
 					
@@ -61,17 +62,20 @@ function launchPreviewFormModal(id) {
 					
 					if (data[1][i].type == "boolean") {
 						if (opts.type == "checkbox") {
-							$(div).append('<input name="'+data[1][i].name+'" style="opacity: 1" type="checkbox" value="1">');
+							$(div).append('<input id="'+data[1][i].name+'" name="'+data[1][i].name+'" style="opacity: 1" type="checkbox" value="1">');
 						} else if (opts.type == "radio") {
 							var wrapper = document.createElement("div");
-							if (opts['false']) $(wrapper).append('<label>'+opts['false']+' <input name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="0"></label>');
+							if (opts['false']) $(wrapper).append('<label style="">'+opts['false']+'<input name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="0"></label>');
+							///if (opts['false']) $(wrapper).append('<label style="">A <input id="fffA" name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="0"></label>');
 							$(wrapper).append("&nbsp;&nbsp;&nbsp;");
-							if (opts['true']) $(wrapper).append('<label>'+opts['true']+' <input name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="1"></label>');
+							if (opts['true']) $(wrapper).append('<label>'+opts['true']+'<input name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="1"></label>');
+							///if (opts['true']) $(wrapper).append('<label style="">B <input id="fffB" name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="1"></label>');
 							$(div).append(wrapper);
 							
 						} else if (opts.type == "select") {
 							var sel = document.createElement("select");
 							sel.className = "form-control select-sm";
+							sel.id = data[1][i].name;
 							sel.style.width = "5em";
 							if (opts['false']) $(sel).append('<option value="0">'+opts['false']+'</option>');
 							if (opts['true']) $(sel).append('<option value="1">'+opts['true']+'</option>');
@@ -81,6 +85,7 @@ function launchPreviewFormModal(id) {
 					} else if (data[1][i].type == "choice") {
 						var sel = document.createElement("select");
 						sel.className = "form-control select-sm";
+						sel.id = data[1][i].name;
 						if (opts.multi == 1) {
 							sel.multiple = true;
 						}
@@ -103,9 +108,17 @@ function launchPreviewFormModal(id) {
 						$(div2).append(input);
 						$(div2).append('<span class="add-on"><i class="sa-plus"></i></span>');
 						$(div).append(div2);
+					} else if (data[1][i].type == "number") {
+						var len = 0;
+						//if (opts.min) 
 					} else if (data[1][i].type == "text" && opts.lines && opts.lines > 1) {
-						$(div).append('<textarea class="form-control" rows="'+opts.lines+'"></textarea>');
+						$(div).append('<textarea class="form-control" id="'+data[1][i].name+'" rows="'+opts.lines+'"></textarea>');
 					}	else $(div).append(input);
+					$(div).find("input").iCheck("destroy");
+					$(div).find("input").iCheck({
+		    checkboxClass: 'icheckbox_minimal',
+		    radioClass: 'iradio_minimal'
+	});
 					$(group).append(div);
 					$("#modalPreviewForm .modal-body").append(group);
 					$('.datetime').datetimepicker({ collapse: false, sideBySide: true });

@@ -20,12 +20,14 @@
 				{!! Form::label('fieldName', 'Name', array('class' => 'col-md-3 control-label')) !!}
 				<div class="col-md-9">
 				{!! Form::text('field[][name]',NULL,['class' => 'form-control input-sm','id' => 'fieldName']) !!}
+				<div class="invalid">* Required</div>
 				</div>
 			</div>
 			<div style="clear: both;" class="form-group">
 				{!! Form::label('fieldLabel', 'Label', array('class' => 'col-md-3 control-label', 'style'=>"float: left")) !!}
 				<div class="col-md-9">
 				{!! Form::text('field[][label]',NULL,['class' => 'form-control input-sm','id' => 'fieldLabel']) !!}
+				<div class="invalid">* Required</div>
 				</div>
 			</div>
 			<div style="clear: both;" class="form-group">
@@ -105,11 +107,11 @@
 					</div>
 					<div>
 						{!! Form::label('txtMin', 'Min', array('class' => 'col-md-4 control-label', 'style'=>"clear: both")) !!}
-						{!! Form::text('field[][opts][number][min]',"0",['class' => 'form-control input-sm','id'=>'txtMin', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
+						{!! Form::text('field[][opts][number][min]',null,['class' => 'form-control input-sm','id'=>'txtMin', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
 					</div>
 					<div>
 						{!! Form::label('txtMax', 'Max', array('class' => 'col-md-4 control-label', 'style'=>"clear: both")) !!}
-						{!! Form::text('field[][opts][number][max]',"0",['class' => 'form-control input-sm','id'=>'txtMax', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
+						{!! Form::text('field[][opts][number][max]',null,['class' => 'form-control input-sm','id'=>'txtMax', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
 					</div>
 				</div>
 				<div class="optsText" style="clear: both; margin-left: 1em;">
