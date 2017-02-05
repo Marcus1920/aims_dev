@@ -4,12 +4,19 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB as DB;
 
 class DatabaseController extends Controller {
+	static function getData($table) {
+		$data = DB::select("select * from {$table}");
+		return $data;
+	}
+	
 	static function getTable($name) {
 		$txtDebug = "DatabaseController::getTable()";
 		$tables = self::getTables();
 		$table = "";
 		foreach ($tables AS $table_tmp) if ($table_tmp['name'] == $name) $table = $table_tmp;
 		$txtDebug .= "\n\$table - ".print_r($table,1);
+		/*error_reporting(-1);
+		$txtDebug .= $a;*/
 		//die("<pre>{$txtDebug}</pre>");
 		return $table;
 	}
@@ -26,6 +33,7 @@ class DatabaseController extends Controller {
 				if ($table_tmp->hasPrimaryKey()) $table['primary'] = $table_tmp->getPrimaryKey()->getColumns();
 				foreach ($table_tmp->getColumns() AS $col_tmp) {
 					$col = $col_tmp->toArray();
+					$col['label'] = ucwords(str_replace(array("_"),array(" "),$col['name']));
 					$col['type'] = $col['type']->getName();
 					//$tables[$table->getName()][] = 
 					//$table['columns'][] = $col;

@@ -1080,3 +1080,4 @@ Route::post('updateForm', ['middleware' => 'resetLastActive', 'uses' => 'FormsCo
 
 Route::get('forms/database/tables', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getTables']);
 Route::get('forms/database/tables/{name}', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getTable']);
+Route::get('forms/database/data/{table}', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getData']);

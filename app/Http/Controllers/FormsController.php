@@ -23,7 +23,7 @@ class FormsController extends Controller {
 			->groupBy("forms.id");
 		//\Session::flash('success', "SQL - ".$forms->toSql());
 		return \Datatables::of($forms)
-			->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}});" data-target=".modalEditForm">Edit</a> <a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchPreviewFormModal({{$id}});" data-target=".modalPreviewForm">Preview</a>')
+			->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}}, true);" data-target=".modalEditForm">Edit</a> <a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchPreviewFormModal({{$id}});" data-target=".modalPreviewForm">Preview</a>')
       	->make(true);
 	}
 	
@@ -43,7 +43,7 @@ class FormsController extends Controller {
 		$form->created_by = \Auth::user()->id;
 		$form->save();
 		\Session::flash('success', $request['name'].' form has been successfully added!');
-		return redirect()->back();
+		return redirect()->back()->withInput();
 	}
   
   public function update(FormsRequest $request) {
@@ -52,10 +52,10 @@ class FormsController extends Controller {
     $form->purpose   = $request['purpose'];
     $form->updated_by   = \Auth::user()->id;
     $form->save();
-    $form->saveFields($request);
+    $form->saveFields($request, $this);
     \Session::flash('success', 'well done! Form '.$request['name'].' has been successfully updated!');
     //\Session::flash('success', "REQUEST<pre>".print_r($request, 1)."</pre>");
-    return redirect()->back();
+    return redirect()->back()->withInput($request->all());
   }
 }
 ?>

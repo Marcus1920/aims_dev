@@ -37,6 +37,13 @@
 @include('forms.add')
 @endsection
 @section('footer')
+<?php
+	/*if (count($errors) > 0) {
+		echo "request<pre>".print_r(Request::all(), 1)."</pre>";
+		echo "errors<pre>".print_r($errors, 1)."</pre>";
+		die("Dyind from errors");
+	}*/
+?>
 <script>
     $(document).ready(function() {
 
@@ -45,7 +52,7 @@
                 "serverSide": true,
                 "dom": 'Bfrtip',
                 "order" :[[0,"desc"]],
-                "ajax": "{!! url('/forms-list')!!}",
+                "ajax": "{!! url('/forms-list/')!!}",
                 "buttons": [
                     'copyHtml5',
                     'excelHtml5',
@@ -67,7 +74,7 @@
                ],
 
             "aoColumnDefs": [
-                { "bSearchable": false, "aTargets": [0,3] },
+                { "bSearchable": false, "aTargets": [1] },
                 { "bSortable": false, "aTargets": [4] }
             ]
 
@@ -75,7 +82,17 @@
 		});
 		
 		@if (count($errors) > 0)
-			$('#modalAddForm').modal('show');
+			@if (Request::old("formId"))
+				//alert("Launching update form for id <?php echo Request::old("formId"); ?>");
+				$('#modalEditForm').modal('show');
+				//launchUpdateFormModal(<?php echo Request::old("formId"); ?>);
+				updateFields();
+			@else
+				$('#modalAddForm').modal('show');
+			@endif
     @endif
 </script>
+<?php
+	//echo "_REQUEST<pre>".print_r($_REQUEST, 1)."</pre>";
+?>
 @endsection

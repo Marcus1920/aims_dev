@@ -10,10 +10,16 @@
                 <h4 class="modal-title">Custom Form Preview</h4>
             </div>
             <div class="modal-body">
+            {!! Form::open(['url' => 'testForm', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"testCustomForm" ]) !!}
             </div>
             <div class="modal-footer">
-
+							<div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <button type="submit" id='submitTestCustomForm' type="button" class="btn btn-sm">Test</button>
+                </div>
+            	</div>
             </div>
+            {!! Form::close() !!}
         </div>
     </div>
 </div>
@@ -30,7 +36,7 @@ function launchPreviewFormModal(id) {
 				$("#modalPreviewForm .modal-header i").remove();
 				$("#modalPreviewForm .modal-header").append("<i>"+data[0].purpose+"</i>");
 			}
-			$("#modalPreviewForm .modal-body").empty();
+			$("#modalPreviewForm .modal-body form").empty();
 			if (data[1] !== null) {
 				for (var i = 0; i < data[1].length; i++) {
 					/*$(".modal-body").append('<div class="form-group"></div>');
@@ -57,6 +63,7 @@ function launchPreviewFormModal(id) {
 					input.className = "form-control input-sm";
 					input.name = data[1][i].name;
 					input.id = data[1][i].name;
+					input.required = true;
 					
 					if (data[1][i].type == "file") input.type = "file";
 					
@@ -111,8 +118,16 @@ function launchPreviewFormModal(id) {
 					} else if (data[1][i].type == "number") {
 						var len = 0;
 						//if (opts.min) 
+						var inputNum = $(div).append(input).find("input").last();
+						console.log("inputNum - ", inputNum);
 					} else if (data[1][i].type == "text" && opts.lines && opts.lines > 1) {
 						$(div).append('<textarea class="form-control" id="'+data[1][i].name+'" rows="'+opts.lines+'"></textarea>');
+					} else if (data[1][i].type == "rel") {
+						var sel = document.createElement("select");
+						sel.className = "form-control select-sm";
+						sel.id = data[1][i].name;
+						getRelatedItems(opts, sel);
+						$(div).append(sel);
 					}	else $(div).append(input);
 					$(div).find("input").iCheck("destroy");
 					$(div).find("input").iCheck({
@@ -126,7 +141,47 @@ function launchPreviewFormModal(id) {
 					$('.time-only').datetimepicker({ pickDate: false });
 				}
 			}
+			
+			$("#modalPreviewForm").validate({
+				submitHandler: function(form) {
+					console.log("submitHandler(form) form - ", form);
+				}
+			});
 		}
 	});
 }
+
+function getRelatedItems(opts, sel) {
+	var table = opts.table;
+	console.log("getRelatedItems(opts, sel) opts - ",opts,", sel - ", sel);
+	$.ajax({
+		type    :"GET",
+		dataType:"json",
+		url     :"{!! url('/forms/database/data/"+ table + "')!!}",
+		success :function(data) {
+			console.log("  data - ", data);
+			if (data) for (var i = 0; i < data.length; i++) {
+				var val = "";
+				if (opts.display) for (var oi = 0; oi < opts.display.length; oi++) val += data[i][opts.display[oi]] + " ";
+				$(sel).append('<option value="'+val+'">'+val+'</option>');
+				console.log("    "+i+", val - ",val);
+			}
+		}
+	});
+}
+
+$(document).ready(function() {
+	$("#submitTestCustomForm").on("click", function (ev) { 
+		console.log("#submitTestCustomForm.click(ev) this - ", this);
+		ev.preventDefault();
+		//if (checkForm()) $("#updateCustomForm").submit();
+		$("#testCustomForm").validate({
+				submitHandler: function(form) {
+					console.log("submitHandler(form) form - ", form);
+				}
+			});
+			//$("#testCustomForm").submit();
+	});
+	
+});
 </script>

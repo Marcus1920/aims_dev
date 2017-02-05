@@ -1,45 +1,57 @@
 <?php
   //$fieldTypes = array('boolean'=>"Boolean",'choice'=>"Choice",'currency'=>"Currency",'date'=>"Date", 'datetime'=>"Date & Time",'file'=>"File",'multichoice'=>"Multichoice",'number'=>"Number",'text'=>"Text",'time'=>"Time");
+  use App\Http\Controllers\DatabaseController AS DbController;
+	$dbTables = DbController::getTables(true);
+	array_unshift($dbTables, "-- Select --");
+	
   $types = array();
-  $types['field'] = array(''=>"-- Select --",'boolean'=>"Boolean",'choice'=>"Choice",'currency'=>"Currency", 'datetime'=>"Date & Time",'file'=>"File",'number'=>"Number",'text'=>"Text");
+  $types['field'] = array(''=>"-- Select --",'boolean'=>"Boolean",'choice'=>"Choice",'currency'=>"Currency", 'datetime'=>"Date & Time",'file'=>"File",'number'=>"Number",'text'=>"Text", 'rel'=>"Related");
   $types['boolean'] = array(''=>"-- Select --",'checkbox'=>"Checkbox", 'select'=>"Dropdown", 'radio'=>"Radio Buttons");
   //foreach ($types AS &$types2) array_unshift($types2, array(''=>"-- Select --"));
+  static $called = 0;
+  $index = "";
+  if (isset($i)) $index = $i;
 ?>
-<div class="fieldTemplate" style="border-top: 2px dashed green; display: none; height: 12em; margin: 5px 20px; padding: 15px 0">
+<div class="fieldTemplate clearfix" style="border-top: 2px dashed green; display: none; margin: 5px 20px; padding: 15px 0">
 	<div class="wSort">
 		<a class="btn btn-sm sort_asc" title="Move field up"><img src="{{asset('images/icon_order_up.png')}}"></a>
 		<a class="btn btn-sm sort_desc" title="Move field down"><img src="{{asset('images/icon_order_down.png')}}"></a>
 		<a class="btn btn-sm delete" title="Delete field"><img src="{{asset('images/icon_delete.png')}}"></a>
 		<a class="btn btn-sm duplicate" title="Duplicate field"><img src="{{asset('images/icon_duplicate.png')}}"></a>
+		<!--<a class="btn btn-sm sort_asc" title="Move field up">^</a>
+		<a class="btn btn-sm sort_desc" title="Move field down">v</a>
+		<a class="btn btn-sm delete" title="Delete field">-</a>
+		<a class="btn btn-sm duplicate" title="Duplicate field">++</a>-->
 		</div>
 	<!--<hr style="width: 75%"><br>-->
 	<div>
-		{!! Form::text('field[][id]',NULL,['class' => 'form-control input-sm','id' => 'fieldId']) !!}
+		{!! Form::hidden('field['.$index.'][id]',isset($field) ? $field['id'] : NULL,['class' => 'form-control input-sm','id' => 'fieldId']) !!}
 		<div style="" class="col-md-6">
 			<div style="clear: both;" class="form-group">
 				{!! Form::label('fieldName', 'Name', array('class' => 'col-md-3 control-label')) !!}
 				<div class="col-md-9">
-				{!! Form::text('field[][name]',NULL,['class' => 'form-control input-sm','id' => 'fieldName']) !!}
+				{!! Form::text('field['.$index.'][name]',isset($field) ? $field['name'] : NULL,['class' => 'form-control input-sm','id' => 'fieldName']) !!}
 				<div class="invalid">* Required</div>
+				@if ($errors->has('field.'.$index.'.name')) <p class="help-block red">*{{ $errors->first('field.'.$index.'.name') }}</p> @endif
 				</div>
 			</div>
 			<div style="clear: both;" class="form-group">
 				{!! Form::label('fieldLabel', 'Label', array('class' => 'col-md-3 control-label', 'style'=>"float: left")) !!}
 				<div class="col-md-9">
-				{!! Form::text('field[][label]',NULL,['class' => 'form-control input-sm','id' => 'fieldLabel']) !!}
+				{!! Form::text('field['.$index.'][label]',isset($field) ? $field['label'] : NULL,['class' => 'form-control input-sm','id' => 'fieldLabel']) !!}
 				<div class="invalid">* Required</div>
 				</div>
 			</div>
 			<div style="clear: both;" class="form-group">
 				{!! Form::label('fieldDesc', 'Description', array('class' => 'col-md-3 control-label', 'style'=>"float: left")) !!}
 				<div class="col-md-9">
-				{!! Form::textarea('field[][desc]',NULL,['class' => 'form-control input-sm','id' => 'fieldDesc', 'rows'=>2]) !!}
+				{!! Form::textarea('field['.$index.'][desc]',isset($field) ? $field['desc'] : NULL,['class' => 'form-control input-sm','id' => 'fieldDesc', 'rows'=>2]) !!}
 				</div>
 			</div>
 		</div>
 		<div class="col-md-6" style="position: relative; white-space: nowrap;">
 		{!! Form::label('Type', 'Type', array('class' => 'col-md-4 control-label')) !!}
-		{!! Form::select('field[][type]',$types['field'], "",['class' => 'form-control select-sm','id' => 'fieldType', 'style'=>"width: 10em"]) !!}
+		{!! Form::select('field['.$index.'][type]',$types['field'], "",['class' => 'form-control select-sm','id' => 'fieldType', 'style'=>"width: 10em"]) !!}
 			<div class="options" style="">
 				{!! Form::label('Options', 'Options', array('class' => 'col-md-2 control-label')) !!}
 				<div class="optsBoolean" style="clear: both; margin-left: 1em;">
@@ -102,6 +114,10 @@
 				</div>
 				<div class="optsNumber" style="clear: both; margin-left: 1em;">
 					<div>
+							{!! Form::label('chkNegative', 'Negatives', array('class' => 'col-md-4 control-label')) !!}
+							{!! Form::checkbox('field[][opts][number][negative]',1, null,['id'=>'chkNegative', 'style'=>"padding-top: 10px;opacity: 1"]) !!}
+					</div>
+					<div>
 						{!! Form::label('txtDecimals', 'Decimals', array('class' => 'col-md-4 control-label')) !!}
 						{!! Form::text('field[][opts][number][decimals]',"0",['class' => 'form-control input-sm','id'=>'txtDecimals', 'style'=>"opacity: 1; width: 4em !important", 'maxlength'=>"3"]) !!}
 					</div>
@@ -128,9 +144,24 @@
 						{!! Form::text('field[][opts][text][max]',"255",['class' => 'form-control input-sm','id'=>'txtMaxLen', 'style'=>"width: 5em !important", 'maxlength'=>"5"]) !!}
 					</div>
 				</div>
+				<div class="optsRelated" style="clear: both; margin-left: 1em;">
+					<div>
+						{!! Form::label('txtRelTable', 'Table', array('class' => 'col-md-4 control-label')) !!}
+						{!! Form::select('field[][opts][rel][table]',$dbTables, 0,['class' => 'form-control select-sm','id' => 'selTable', 'style'=>"width: 10em", 'onchange'=>"selectTable(this.options[this.selectedIndex].value, true, this.parentNode.parentNode)"]) !!}
+					</div>
+					<div>
+						{!! Form::label('', 'Display Fields', array('class' => 'col-md-4 control-label')) !!}
+						<div style="white-space: normal; padding: 8px; width: 20em; position: relative; left: 10px;"><small>The constructed content for each related item will be a space-seperated string of the values for these fields</small></div>
+						<div class="displayFields">
+						
+						</div>
+					</div>
+				</div>
 				<br>
 				<br>
 			</div>
 		</div>
 	</div>
 </div>
+
+<?php $called++; ?>

@@ -2,6 +2,10 @@
 	use App\Http\Controllers\DatabaseController AS DbController;
 	$dbTables = DbController::getTables(true);
 	array_unshift($dbTables, "-- Select --");
+	//echo "errors<pre>".print_r($errors, 1)."</pre>";
+	//echo "field<pre>".print_r(Input::old("field"), 1)."</pre>";
+	//ini_set("memory_limit", "256M");
+	//die(phpinfo());
 ?>
 <!-- Modal Default -->
 <div class="modal fade modalEditForm" id="modalEditForm" tabindex="-1" role="dialog" aria-hidden="true">
@@ -18,7 +22,7 @@
             <div class="form-group">
                 {!! Form::label('name', 'Name', array('class' => 'col-md-2 control-label')) !!}
                 <div class="col-md-10">
-                  {!! Form::text('name',NULL,['class' => 'form-control input-sm','id' => 'name']) !!}
+                  {!! Form::text('name',(Request::old("name")?Request::old("name"):null),['class' => 'form-control input-sm','id' => 'name']) !!}
                   @if ($errors->has('name')) <p class="help-block red">*{{ $errors->first('name') }}</p> @endif
                 </div>
             </div>
@@ -35,7 +39,7 @@
             	
 		            {!! Form::label('selTable', 'Table', array('class' => 'col-md-2 control-label')) !!}
 		            <div class="col-md-3">
-		            {!! Form::select('table',$dbTables, 0,['class' => 'form-control select-sm','id' => 'selTable', 'style'=>"width: 10em", 'onchange'=>"selectTable(this.options[this.selectedIndex].value)"]) !!}
+		            {!! Form::select('table',$dbTables, 0,['class' => 'form-control select-sm','id' => 'selTable', 'style'=>"width: 10em", 'onchange'=>"selectTable(this.options[this.selectedIndex].value, false)"]) !!}
 		          	</div>
 		          	{!! Form::label('chkSystem', 'System', array('class' => 'col-md-2 control-label', 'title'=>"Include system fields")) !!}
 	            	{!! Form::checkbox('chkSystem',1, false,['id'=>'chkSystem']) !!}
@@ -44,7 +48,11 @@
             <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnAddField">Add Field</a>
             <!--<span id="cntFields">0</span>-->
             <div class="form-group" id="formFields">
-            
+            @if (!is_null(Input::old("field")))
+            	@foreach (Input::old("field") as $i=>$field)
+            		@include('forms.field')
+            	@endforeach
+            @endif
             </div>
             
             <div class="form-group">
@@ -66,12 +74,12 @@ var cntFields = 0;
 var tablename = "";
 
 
-function launchUpdateFormModal(id) {
-	console.log("launchUpdateFormModal(id) id - "+id+", fields - ",$(".fieldTemplateClone").length);
+function launchUpdateFormModal(id, clear) {
+	console.log("launchUpdateFormModal(id) id - "+id+", fields - ",$("#formFields .fieldTemplate").length);
 	$(".modal-body #formId").val(id);
 	//$("#formFields").remove(".fieldTemplate");
-	$(".fieldTemplateClone").remove();
-	/*$("#cntFields").text($(".fieldTemplateClone").length);*/
+	if (clear) $("#formFields .fieldTemplate").remove();
+	/*$("#cntFields").text($(".fieldTemplate").length);*/
 	cntFields = 0;
 	$.ajax({
 		type    :"GET",
@@ -88,7 +96,7 @@ function launchUpdateFormModal(id) {
 			}
 			if(data[1] !== null) {
 				for (var i = 0; i < data[1].length; i++) {
-					addField(data[1][i]);
+					addField(i, data[1][i]);
 				}
 			}
 			/*$(".fieldTemplateClone").each(function(i, el) {
@@ -136,18 +144,43 @@ function addChoice(template, val) {
 	updateFields();
 }
 
-function addField(vals) {
-	console.log("addField(vals) vals - ", vals);
+function addChoiceRel(template, val) {
+	console.log("addChoiceRel(template, val) template - ",template,", val - ",val);
+	var displayFields = $(template).find(".displayFields");
+	var wrapper = document.createElement("div");
+	var label = document.createElement("label");
+	var choice = document.createElement("input");
+	$(choice).css("opacity", "1");
+	choice.name = "field[][opts][rel][display][]";
+	choice.type = "checkbox";
+	
+	label.className = "col-md-4 control-label";
+	if (val) {
+		choice.value = val.name;
+		label.innerText = val.name;
+	}
+	wrapper.className = "clearfix";
+	$(wrapper).css("clear","both");
+	wrapper.appendChild(choice);
+	console.log("  label - ", label);
+	wrapper.appendChild(label);
+	displayFields.append(wrapper);
+	updateFields();
+}
+
+function addField(index, vals) {
+	console.log("addField(index, vals) index - ",index,", vals - ", vals);
 	cntFields++;
 	/*$("#cntFields").text(cntFields);*/
-	var template = $(".fieldTemplate").clone(true).get(0);
-	template.className = "fieldTemplateClone";
+	var template = $(".fieldTemplate").clone().get(0);
+	//template.className = "fieldTemplateClone";
 	//template.css("display: block !important");
 	//template.disabled = false;
 	////$(template).find("#fieldType").removeAttr("disabled");
-	template.style.display = "block";
+	///template.style.display = "block";
 	$("#formFields").append(template);
 	if (!vals) template.scrollIntoView();
+	//template.style.display = "block";
 	updateFields();
 	///$(template).on("mousedown", startDrag);
 	$(template).find(".options").find("[class^='opts']").hide();
@@ -209,26 +242,26 @@ function addField(vals) {
 	//$(template).find("input").iCheck("destroy");
 	//$(template).find("input").iCheck("enable");
 	//$(template).find("input").iCheck("update");
-	$(template).find("[id^='fieldType']").on("change", function(ev) {
+	/*$(template).find("[id^='fieldType']").on("change", function(ev) {
 		console.log("fieldType.change: ev - ", ev, ", this - ",this);
 		selectType(template, this.options[this.selectedIndex].value);
 	});
 	$(template).find("[id^='btnAddChoice']").on("click", function(ev) {
 		addChoice(template);
-	});
+	});*/
 }
 
 function checkForm() {
 	console.log("checkForm()");
 	var valid = true;
-	$(".fieldTemplateClone").each(function(i, template) {
-		console.log("  .fieldTemplateClone: i - "+i+", this - ", this);
+	$("#formFields .fieldTemplate").each(function(i, template) {
+		console.log("  .fieldTemplate: i - "+i+", this - ", this);
 		$(this).find(".invalid").hide();
 		$(this).find(".invalid").each(function() {
 			if ($(this).prev().val() == "") {
 				$(this).show();
 				template.scrollIntoView();
-				valid = false;
+				//valid = false;
 			}
 		});
 		//var inputs = $(this).find("[class^='opts']").filter(":visible").find("input");
@@ -250,11 +283,12 @@ function checkForm() {
 			}
 		}
 	});
+	//valid = false;
 	return valid;
 }
 
 function duplicateField(index) {
-	var field = $("#formFields").find(".fieldTemplateClone").get(index);
+	var field = $("#formFields").find(".fieldTemplate").get(index);
 	var vals = { type: "" }
 	var type = $(field).find("[id^=fieldType]").val();
 	var newfield = $(field).clone(true).get(0);
@@ -274,7 +308,7 @@ function duplicateField(index) {
 function deleteField(index) {
 	console.log("deleteField(index) index - "+index);
 	//$("#formFields").find(".fieldTemplateClone")[1].remove();
-	var field = $("#formFields").find(".fieldTemplateClone").get(index);
+	var field = $("#formFields").find(".fieldTemplate").get(index);
 	$(field).remove();
 	updateFields();
 }
@@ -289,7 +323,7 @@ function orderUp(e) {
 
 function reorder(dir, index) {
 	console.log("reorder(dir, index) dir - "+dir+", index "+index);
-	var fields = $("#formFields").find(".fieldTemplateClone");
+	var fields = $("#formFields").find(".fieldTemplate");
 	var index2 = 0;
 	if (dir > 0) index2 = index-1;
 	else if (dir < 0) index2 = index+1;
@@ -299,10 +333,11 @@ function reorder(dir, index) {
 	updateFields();
 }
 
-function selectTable(name) {
+function selectTable(name, rel, template) {
 	var chkSystem = $("#chkSystem").get(0).checked;
-	console.log("selectTable(name) name - "+name+", chkSystem - "+chkSystem);
-	$(".fieldTemplateClone").remove();
+	console.log("selectTable(name, rel) name - "+name+", rel - "+rel+", template - ",template,", chkSystem - "+chkSystem);
+	if (rel && template) $(template).find(".displayFields").empty();
+	else if (!rel) $("#formFields .fieldTemplate").remove();
 	if (name == "0") return;
 	if (name != null) tablename = name;
 	$.ajax({
@@ -316,7 +351,7 @@ function selectTable(name) {
 				var systemTables = ["active","created_at", "created_by", "id","remember_token", "updated_at", "updated_by"];
 				for (var i = 0; i < data.columns.length; i++) {
 					var col_tmp = data.columns[i];
-					var col = { name: col_tmp.name, type: col_tmp.type };
+					var col = { label: col_tmp.label, name: col_tmp.name, type: col_tmp.type };
 					if (col.type == "integer") col.type = "number";
 					else if (col.type == "string") col.type = "text";
 					else if (col.type == "date" || col.type == "datetime" || col.type == "time") {
@@ -325,7 +360,13 @@ function selectTable(name) {
 					}
 					var isSystem = false;
 					for (var j = 0; j < systemTables.length; j++) if (systemTables[j] == col.name) isSystem = true;
-					if (isSystem == false || (chkSystem)) addField(col);
+					//if (i > 5) continue;
+					if (isSystem == false || (chkSystem)) {
+						if (rel) {
+							addChoiceRel(template, col);
+						}
+						else addField(i, col);
+					}
 				}
 			}
 		}
@@ -333,7 +374,7 @@ function selectTable(name) {
 }
 
 function selectType(template, selection) {
-	console.log("selectType(template, selection) template - ", template,", selection - ", selection);
+	//console.log("selectType(template, selection) template - ", template,", selection - ", selection);
 	$(template).find(".options").find("[class^='opts']").hide();
 	if (selection != "") selection = selection[0].toUpperCase()+selection.substr(1);
 	$(template).find(".options").find("[class^='opts"+selection+"']").show();
@@ -364,9 +405,9 @@ function swapElements(obj1, obj2) {
 
 function updateFields() {
 	console.log("updateFields() this - ",this);
-	var fields = $("#formFields").find(".fieldTemplateClone");
+	var fields = $("#formFields").find(".fieldTemplate");
 	fields.each(function(index) {
-		console.log("Updating field "+index+" of "+fields.length+", ordering buttons - ",$(this).find(".sort_asc").length);
+		///console.log("Updating field "+index+" of "+fields.length+", ordering buttons - ",$(this).find(".sort_asc").length);
 		if (index == 0) $(this).find(".sort_asc").css("visibility","hidden");
 		else $(this).find(".sort_asc").css("visibility","visible");
 		if (index > 0 && index == fields.length-1) $(this).find(".sort_desc").css("visibility","hidden");
@@ -390,6 +431,7 @@ function updateFields() {
 	});
 	
 	fields.each(function(i, el) {
+		el.style.display = "block";
 		//var el = this;
 		///console.log(".fieldTemplate(i, el) i - "+i+", el - ", el);
 		$(el).find("[name*='field']").each(function(i2, el2) {
@@ -408,6 +450,15 @@ function updateFields() {
 				lbl.attr("for", el2.id);
 				///console.log("  for - ", lbl.attr("for"));
 			}
+		});
+		var selType = $(el).find("[id^='fieldType']").get(0);
+		///selectType(el, selType.options[selType.selectedIndex].value);
+		$(el).find("[id^='fieldType']").on("change", function(ev) {
+			console.log("fieldType.change: ev - ", ev, ", this - ",this);
+			selectType(el, this.options[this.selectedIndex].value);
+		});
+		$(el).find("[id^='btnAddChoice']").on("click", function(ev) {
+			addChoice(el);
 		});
 	});
 }
@@ -435,6 +486,9 @@ $(document).ready(function() {
     height: 200px;*/
     border: 1px solid black;
 }
+/*.fieldTemplate, .fieldTemplate label {
+	font-size: small !important;
+}*/
 .fieldTemplateClone {
     position: relative;
     top: 0;
