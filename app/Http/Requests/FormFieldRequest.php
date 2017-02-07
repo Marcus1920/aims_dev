@@ -22,7 +22,7 @@ class FormsRequest extends Request {
    */
   public function rules() {
     return [
-			'name'     =>'required|unique:forms_fields'
+			//'name'     =>'required|unique:forms_fields.name,'.(isset($_REQUEST['formId'])? $_REQUEST['formId'] :"NULL")
     ];
   }
 }

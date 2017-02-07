@@ -1,11 +1,13 @@
 <?php
 	use App\Http\Controllers\DatabaseController AS DbController;
 	$dbTables = DbController::getTables(true);
-	array_unshift($dbTables, "-- Select --");
+	array_unshift($dbTables, "-- None --");
 	//echo "errors<pre>".print_r($errors, 1)."</pre>";
 	//echo "field<pre>".print_r(Input::old("field"), 1)."</pre>";
 	//ini_set("memory_limit", "256M");
 	//die(phpinfo());
+	$dbTable = "";
+	//$dbTable = "cases";
 ?>
 <!-- Modal Default -->
 <div class="modal fade modalEditForm" id="modalEditForm" tabindex="-1" role="dialog" aria-hidden="true">
@@ -15,7 +17,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title">Custom Form</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="padding-bottom: 0">
             {!! Form::open(['url' => 'updateForm', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"updateCustomForm" ]) !!}
             {!! Form::hidden('formId',NULL,['id' => 'formId']) !!}
             {!! Form::hidden('id',Auth::user()->id) !!}
@@ -39,7 +41,7 @@
             	
 		            {!! Form::label('selTable', 'Table', array('class' => 'col-md-2 control-label')) !!}
 		            <div class="col-md-3">
-		            {!! Form::select('table',$dbTables, 0,['class' => 'form-control select-sm','id' => 'selTable', 'style'=>"width: 10em", 'onchange'=>"selectTable(this.options[this.selectedIndex].value, false)"]) !!}
+		            {!! Form::select('table',$dbTables, $dbTable != "" ? $dbTable : NULL,['class' => 'form-control select-sm','id' => 'selTable', 'style'=>"width: 10em", 'onchange'=>"selectTable(this.options[this.selectedIndex].value, false)"]) !!}
 		          	</div>
 		          	{!! Form::label('chkSystem', 'System', array('class' => 'col-md-2 control-label', 'title'=>"Include system fields")) !!}
 	            	{!! Form::checkbox('chkSystem',1, false,['id'=>'chkSystem']) !!}
@@ -47,7 +49,7 @@
             <h3 class="block-title">Fields</h3>
             <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnAddField">Add Field</a>
             <!--<span id="cntFields">0</span>-->
-            <div class="form-group" id="formFields">
+            <div class="form-group" id="formFields" style="overflow-y: auto">
             @if (!is_null(Input::old("field")))
             	@foreach (Input::old("field") as $i=>$field)
             		@include('forms.field')
@@ -127,7 +129,25 @@ function launchUpdateFormModal(id, clear) {
 				if (tbl != "0") selectTable(tbl);
 			});
 			
+			//console.log("selTable - ",$("#selTable"));
+			if (data[1].length > 0) for (var i = 0; i < data[1].length; i++) {
+				for (var i2 = 0; i2 < $("#selTable").get(0).options.length; i2++) {
+					//console.log("selTable.options["+i2+"] - ",$("#selTable").get(0).options[i2]);
+					if ($("#selTable").get(0).options[i2].value == data[1][i].table) {
+						//console.log("Setting it");
+						$("#selTable").get(0).selectedIndex = i2;
+					}
+				}
+			}
+			//$("#selTable").get(0).selectedIndex = 5;
 			$("a[title!=''],input[title!=''],label[title!='']").tooltip( { track: true } );
+			var height = 0;
+			$(".form-group").each( function(index) { height += $(this).height(); } );
+			console.log("  height after adding - ", height);
+			$("#formFields .form-group").each( function(index) { height -= $(this).height(); } );
+			height = $(window).get(0).innerHeight - 350;
+			console.log("Setting height: window.height - ", $(window).height(), ", form-group height - ",height);
+			$("#formFields").height( height );
 		}
 	});	
 }
@@ -179,7 +199,7 @@ function addField(index, vals) {
 	////$(template).find("#fieldType").removeAttr("disabled");
 	///template.style.display = "block";
 	$("#formFields").append(template);
-	if (!vals) template.scrollIntoView();
+	
 	//template.style.display = "block";
 	updateFields();
 	///$(template).on("mousedown", startDrag);
@@ -249,6 +269,7 @@ function addField(index, vals) {
 	$(template).find("[id^='btnAddChoice']").on("click", function(ev) {
 		addChoice(template);
 	});*/
+	if (!vals) template.scrollIntoView();
 }
 
 function checkForm() {
@@ -351,7 +372,7 @@ function selectTable(name, rel, template) {
 				var systemTables = ["active","created_at", "created_by", "id","remember_token", "updated_at", "updated_by"];
 				for (var i = 0; i < data.columns.length; i++) {
 					var col_tmp = data.columns[i];
-					var col = { label: col_tmp.label, name: col_tmp.name, type: col_tmp.type };
+					var col = { id: col_tmp.id, label: col_tmp.label, name: col_tmp.name, type: col_tmp.type };
 					if (col.type == "integer") col.type = "number";
 					else if (col.type == "string") col.type = "text";
 					else if (col.type == "date" || col.type == "datetime" || col.type == "time") {

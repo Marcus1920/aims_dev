@@ -10,7 +10,8 @@
                 <h4 class="modal-title">Custom Form Preview</h4>
             </div>
             <div class="modal-body">
-            {!! Form::open(['url' => 'testForm', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"testCustomForm" ]) !!}
+            {!! Form::open(['url' => 'testForm', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"testCustomForm", 'style'=>"height: 100%" ]) !!}
+            <div style="height: 100%; overflow-x: hidden; overflow-y: auto;"></div>
             </div>
             <div class="modal-footer">
 							<div class="form-group">
@@ -36,7 +37,7 @@ function launchPreviewFormModal(id) {
 				$("#modalPreviewForm .modal-header i").remove();
 				$("#modalPreviewForm .modal-header").append("<i>"+data[0].purpose+"</i>");
 			}
-			$("#modalPreviewForm .modal-body form").empty();
+			$("#modalPreviewForm .modal-body form div").empty();
 			if (data[1] !== null) {
 				for (var i = 0; i < data[1].length; i++) {
 					/*$(".modal-body").append('<div class="form-group"></div>');
@@ -135,7 +136,7 @@ function launchPreviewFormModal(id) {
 		    radioClass: 'iradio_minimal'
 	});
 					$(group).append(div);
-					$("#modalPreviewForm .modal-body").append(group);
+					$("#modalPreviewForm .modal-body div").first().append(group);
 					$('.datetime').datetimepicker({ collapse: false, sideBySide: true });
 					$('.date-only').datetimepicker({ pickTime: false });
 					$('.time-only').datetimepicker({ pickDate: false });
@@ -147,6 +148,10 @@ function launchPreviewFormModal(id) {
 					console.log("submitHandler(form) form - ", form);
 				}
 			});
+			
+			var height = $(window).get(0).innerHeight - 200;
+			console.log("  height - ", height, ", #modalPreviewForm .modal-body height - ", $("#modalPreviewForm .modal-body").height());
+			if ($("#modalPreviewForm .modal-body").height() > height) $("#modalPreviewForm .modal-body").height( height );
 		}
 	});
 }

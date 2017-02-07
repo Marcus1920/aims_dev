@@ -147,7 +147,7 @@
 				<div class="optsRelated" style="clear: both; margin-left: 1em;">
 					<div>
 						{!! Form::label('txtRelTable', 'Table', array('class' => 'col-md-4 control-label')) !!}
-						{!! Form::select('field[][opts][rel][table]',$dbTables, 0,['class' => 'form-control select-sm','id' => 'selTable', 'style'=>"width: 10em", 'onchange'=>"selectTable(this.options[this.selectedIndex].value, true, this.parentNode.parentNode)"]) !!}
+						{!! Form::select('field[][opts][rel][table]',$dbTables, 0,['class' => 'form-control select-sm','id' => 'txtRelTable', 'style'=>"width: 10em", 'onchange'=>"selectTable(this.options[this.selectedIndex].value, true, this.parentNode.parentNode)"]) !!}
 					</div>
 					<div>
 						{!! Form::label('', 'Display Fields', array('class' => 'col-md-4 control-label')) !!}
