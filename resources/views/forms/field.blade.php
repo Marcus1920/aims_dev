@@ -1,12 +1,18 @@
 <?php
   //$fieldTypes = array('boolean'=>"Boolean",'choice'=>"Choice",'currency'=>"Currency",'date'=>"Date", 'datetime'=>"Date & Time",'file'=>"File",'multichoice'=>"Multichoice",'number'=>"Number",'text'=>"Text",'time'=>"Time");
   use App\Http\Controllers\DatabaseController AS DbController;
+  use App\FormFieldType;
 	$dbTables = DbController::getTables(true);
 	array_unshift($dbTables, "-- Select --");
 	
   $types = array();
   $types['field'] = array(''=>"-- Select --",'boolean'=>"Boolean",'choice'=>"Choice",'currency'=>"Currency", 'datetime'=>"Date & Time",'file'=>"File",'number'=>"Number",'text'=>"Text", 'rel'=>"Related");
   $types['boolean'] = array(''=>"-- Select --",'checkbox'=>"Checkbox", 'select'=>"Dropdown", 'radio'=>"Radio Buttons");
+  $currencies = FormFieldType::Currency();
+  $types['currency'] = array();
+  foreach ($currencies AS $currency) 
+  $types['currency'][$currency['iso']] = $currency['name'];
+  //die("\$types - <pre>".print_r($types, 1)."</pre>");
   //foreach ($types AS &$types2) array_unshift($types2, array(''=>"-- Select --"));
   static $called = 0;
   $index = "";
@@ -81,7 +87,18 @@
 					</div>
 				</div>
 				<div class="optsCurrency" style="clear: both; margin-left: 1em;">
-					&nbsp;
+					<div>
+						{!! Form::label('selTypeCurrency', 'Type', array('class' => 'col-md-4 control-label')) !!}
+						{!! Form::select('field[][opts][currency][type]',$types['currency'], "",['class' => 'form-control select-sm','id' => 'selTypeCurrency', 'style'=>"width: 10em" ]) !!}
+					</div>
+					<div>
+						{!! Form::label('txtMinCurrency', 'Min', array('class' => 'col-md-4 control-label', 'style'=>"clear: both")) !!}
+						{!! Form::text('field[][opts][currency][min]',null,['class' => 'form-control input-sm','id'=>'txtMinCurrency', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
+					</div>
+					<div>
+						{!! Form::label('txtMaxCurrency', 'Max', array('class' => 'col-md-4 control-label', 'style'=>"clear: both")) !!}
+						{!! Form::text('field[][opts][currency][max]',null,['class' => 'form-control input-sm','id'=>'txtMaxCurrency', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
+					</div>
 				</div>
 				<div class="optsDatetime" style="clear: both; margin-left: 1em;">
 					<div>

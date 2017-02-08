@@ -47,7 +47,7 @@ class Form extends Eloquent {
 			}
 		}
 		//parent::save();
-		//die($txtDebug);
+		//die("<pre>$txtDebug<pre>");
 		return $saved;
 	}
 }

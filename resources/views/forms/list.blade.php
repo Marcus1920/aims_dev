@@ -50,20 +50,10 @@
       $('#formsTable').DataTable({
                 "processing": true,
                 "serverSide": true,
-                "dom": 'Bfrtip',
+                "dom": 'frtip',
                 "order" :[[0,"desc"]],
                 "ajax": "{!! url('/forms-list/')!!}",
-                "buttons": [
-                    'copyHtml5',
-                    'excelHtml5',
-                    'csvHtml5',{
-
-                      extend : 'pdfHtml5',
-                      title  : 'Siyaleader',
-                      header : 'I am text in',
-                    },
-                ],
-                 "columns": [
+                "columns": [
 
                     {data: 'id', name: 'forms.id'},
                     {data: 'name', name: 'forms.name'},
