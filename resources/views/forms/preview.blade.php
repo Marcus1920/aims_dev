@@ -40,28 +40,8 @@ function launchPreviewFormModal(id) {
 				$("#modalPreviewForm .modal-header").append("<i>"+data[0].purpose+"</i>");
 			}
 			$("#modalPreviewForm .modal-body form div").empty();
+			var theRules = {};
 			if (data[1] !== null) {
-				$("#testCustomForm").validate({		
-				onfocusout: function(el, ev) {
-					console.log("onfocusout(el, ev) el - , ",el);
-					//$(el.form).valid();
-					//if (el.value != "") 
-					$(el).valid();
-				}
-				, onkeyup: function(el, ev) {
-					console.log("onkeyup(el, ev) el - , ", el,", ev - ", ev);
-					$(el).valid();
-				}
-				, rules: {
-					"nolimitss": {
-						//required: true
-					}
-					, "checkcode": {
-						//required: true
-					}
-				}
-			});
-			
 				for (var i = 0; i < data[1].length; i++) {
 					/*$(".modal-body").append('<div class="form-group"></div>');
 					var group = $(".modal-body").find(".form-group").first();
@@ -140,9 +120,9 @@ function launchPreviewFormModal(id) {
 						//$(input).attr("required", "required");
 						//$(input).attr("digits", "digits");
 						//$(input).attr("data-rule-requiredd", "true");
-						$(input).attr("data-rule-currency", "true");
-						$(input).attr("data-type", "currency");
-						
+						//$(input).attr("data-rule-currency", "true");
+						//$(input).attr("data-type", "currency");
+						$(input).attr("data-rule-number", "true");
 						$(div).append(div2);
 					} else if (data[1][i].type == "datetime") {
 						if (opts.subtype == "datetime") $(input).attr("data-format", "yyyy-MM-dd hh:mm:ss");
@@ -161,11 +141,13 @@ function launchPreviewFormModal(id) {
 						//if (opts.min) 
 						var inputNum = $(div).append(input).find("input").last();
 						console.log("inputNum - ", inputNum);
-						$(input).attr("data-rule-number", "true");
+						//$(input).attr("data-rule-number", "true");
 						//$(input).rules("add", { required: true, digits: true });
 						/*$(input).rules("add", {
 							required: true, currency: true
 						});*/
+						if ((opts.decimals) == 0) $(input).attr("data-rule-digits", "true");
+						else $(input).attr("data-rule-number", "true");
 					} else if (data[1][i].type == "text" && opts.lines && opts.lines > 1) {
 						$(div).append('<textarea class="form-control" id="'+data[1][i].name+'" rows="'+opts.lines+'"></textarea>');
 					} else if (data[1][i].type == "rel") {
@@ -174,6 +156,9 @@ function launchPreviewFormModal(id) {
 						getRelatedItems(opts, input);
 						$(div).append(input);
 					}	else $(div).append(input);
+					if (opts.min && opts.max) $(input).attr("data-rule-range", [opts.min, opts.max]);
+					else if (opts.min) $(input).attr("data-rule-min", opts.min);
+					else if (opts.max) $(input).attr("data-rule-max", opts.max);
 					$(div).find("input").iCheck("destroy");
 					$(div).find("input").iCheck({
 		    checkboxClass: 'icheckbox_minimal',
@@ -206,7 +191,32 @@ function launchPreviewFormModal(id) {
 			console.log("  height - ", height, ", #modalPreviewForm .modal-body height - ", $("#modalPreviewForm .modal-body").height());
 			if ($("#modalPreviewForm .modal-body").height() > height) $("#modalPreviewForm .modal-body").height( height );
 			
+			jQuery.validator.setDefaults({
+				debug: true
+				, success: "valid"
+			});
 			
+			$("#testCustomForm").validate({		
+			onfocusout: function(el, ev) {
+				console.log("onfocusout(el, ev) el - , ",el);
+				//$(el.form).valid();
+				//if (el.value != "") 
+				$(el).valid();
+			}
+			, onkeyup: function(el, ev) {
+				console.log("onkeyup(el, ev) el - , ", el,", ev - ", ev);
+				$(el).valid();
+			}
+			/*, rules: {
+				"nolimitss": {
+					//required: true
+				}
+				, "checkcode": {
+					//required: true
+				}
+			}*/
+			, rules: theRules
+		});
 			
 			$('input').rules("add", {
 				required: true, currency: true
@@ -230,7 +240,7 @@ function getRelatedItems(opts, sel) {
 				var val = "";
 				if (opts.display) for (var oi = 0; oi < opts.display.length; oi++) val += data[i][opts.display[oi]] + " ";
 				$(sel).append('<option value="'+val+'">'+val+'</option>');
-				console.log("    "+i+", val - ",val);
+				///console.log("    "+i+", val - ",val);
 			}
 		}
 	});
@@ -239,7 +249,7 @@ function getRelatedItems(opts, sel) {
 $(document).ready(function() {
 	$("#submitTestCustomForm").on("click", function (ev) { 
 		console.log("#submitTestCustomForm.click(ev) this - ", this);
-		ev.preventDefault();
+		//ev.preventDefault();
 		$("#testCustomForm").valid();
 		//if (checkForm()) $("#updateCustomForm").submit();
 		/*$("#testCustomForm").validate({
@@ -261,7 +271,7 @@ $().ready(function() {
 	var valid = true;
 	var opts = {};
 	
-	$.validator.addMethod("currency", function(value, element) {
+	/*$.validator.addMethod("currency", function(value, element) {
 		var elName = element.id;
 		var err = {};
 		var opts = JSON.parse($(element).attr("data-opts"));
@@ -282,9 +292,9 @@ $().ready(function() {
 		this.defaultShowErrors();
 		console.log("currency: valid - ",valid,", opts - ",opts,", elName - "+elName+", value - "+element.value+", element - ",element);
 		return valid;
-	}, "Monetary values only");
+	}, "Monetary values only");*/
 	
-	$.validator.addMethod("number", function(value, element) {
+	/*$.validator.addMethod("number", function(value, element) {
 		var elName = element.id;
 		var err = {};
 		var opts = JSON.parse($(element).attr("data-opts"));
@@ -308,7 +318,7 @@ $().ready(function() {
 		this.defaultShowErrors();
 		console.log("number: valid - ",valid,", opts - ",opts,", elName - "+elName+", value - "+element.value+", element - ", element);
 		return valid;
-	}, "Integer numbers only");
+	}, "Integer numbers only");*/
 	
 	$.validator.addMethod("EMAIL", function(value, element) {
 		return this.optional(element) || /^[a-zA-z0-9._-]+@[a-zA-z0-9-]+\.[a-zA-Z.]{2,5}$/i.test(value);

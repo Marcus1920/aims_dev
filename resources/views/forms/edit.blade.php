@@ -164,8 +164,8 @@ function addChoice(template, val) {
 	updateFields();
 }
 
-function addChoiceRel(template, val) {
-	console.log("addChoiceRel(template, val) template - ",template,", val - ",val);
+function addChoiceRel(template, val, display) {
+	console.log("addChoiceRel(template, val) template - ",template,", val - ",val,", display - ",display);
 	var displayFields = $(template).find(".displayFields");
 	var wrapper = document.createElement("div");
 	var label = document.createElement("label");
@@ -178,6 +178,7 @@ function addChoiceRel(template, val) {
 	if (val) {
 		choice.value = val.name;
 		label.innerText = val.name;
+		if (typeof display != "undefined") for (var i = 0; i < display.length; i++) if (display[i] == val.name) choice.checked = true;
 	}
 	wrapper.className = "clearfix";
 	$(wrapper).css("clear","both");
@@ -270,6 +271,10 @@ function addField(index, vals) {
 		addChoice(template);
 	});*/
 	if (!vals) template.scrollIntoView();
+	else if (vals.type == "rel") {
+		var opts = JSON.parse(vals.options);
+		selectTable(opts.table, true, $(template).find(".optsRelated").get(0), opts)
+	}
 }
 
 function checkForm() {
@@ -292,7 +297,7 @@ function checkForm() {
 			console.log("    inputs["+i2+"] - ", input);
 		});*/
 		opts.find("input").removeClass("error");
-		if (opts.find("[id^=txtMin]")[0] && opts.find("[id^=txtMax]")[0]) {
+		/*if (opts.find("[id^=txtMin]")[0] && opts.find("[id^=txtMax]")[0]) {
 			var min = opts.find("[id^=txtMin]")[0];
 			var max = opts.find("[id^=txtMax]")[0];
 			console.log("    min - ",$(min).val(),", max - ", $(max).val());
@@ -302,7 +307,7 @@ function checkForm() {
 				valid = false;
 				min.scrollIntoView();
 			}
-		}
+		}*/
 	});
 	//valid = false;
 	return valid;
@@ -354,9 +359,9 @@ function reorder(dir, index) {
 	updateFields();
 }
 
-function selectTable(name, rel, template) {
+function selectTable(name, rel, template, opts) {
 	var chkSystem = $("#chkSystem").get(0).checked;
-	console.log("selectTable(name, rel) name - "+name+", rel - "+rel+", template - ",template,", chkSystem - "+chkSystem);
+	console.log("selectTable(name, rel) name - "+name+", rel - "+rel+", opts - ",opts,", template - ",template,", chkSystem - "+chkSystem);
 	if (rel && template) $(template).find(".displayFields").empty();
 	else if (!rel) $("#formFields .fieldTemplate").remove();
 	if (name == "0") return;
@@ -384,7 +389,7 @@ function selectTable(name, rel, template) {
 					//if (i > 5) continue;
 					if (isSystem == false || (chkSystem)) {
 						if (rel) {
-							addChoiceRel(template, col);
+							addChoiceRel(template, col, opts.display);
 						}
 						else addField(i, col);
 					}
