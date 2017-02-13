@@ -18,9 +18,10 @@ class FormsController extends Controller {
 		///$forms = Form::select(array(Form::raw('1 as cntFields')));
 		//$forms = Form::select(array('forms.id','forms.name','forms.purpose','forms.slug','forms.created_at', Form::raw('1 AS cntFields')));
 		//->leftJoin("forms_fields","forms_fields.form_id", "=", "forms.id");//->leftJoinWhere("forms_fields", "forms.id", "=", "forms_fields.form_id");
-		$forms = Form::select("forms.*", DB::raw('COUNT(forms_fields.id) as cntFields'))
+		$forms = Form::select("*", DB::raw('COUNT(forms_fields.id) as cntFields'))
 			->leftJoin("forms_fields", "forms.id", "=", "forms_fields.form_id")
 			->groupBy("forms.id");
+			//$forms = \DB::table("forms")->leftJoin("forms_fields", "forms.id", "=", "forms_fields.form_id")->select(\DB::raw("forms.`id`,forms.`name`, forms.`purpose`,COUNT(forms_fields.id) as cntFields"))->groupBy("forms.id");
 		//\Session::flash('success', "SQL - ".$forms->toSql());
 		return \Datatables::of($forms)
 			->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}}, true);" data-target=".modalEditForm">Edit</a> <a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchPreviewFormModal({{$id}});" data-target=".modalPreviewForm">Preview</a>')

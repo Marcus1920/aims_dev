@@ -21,7 +21,8 @@
             {!! Form::open(['url' => 'updateForm', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"updateCustomForm" ]) !!}
             {!! Form::hidden('formId',NULL,['id' => 'formId']) !!}
             {!! Form::hidden('id',Auth::user()->id) !!}
-            <div class="form-group">
+            <div style="border: 0px solid red; float: left; width: 50%">
+            	<div class="form-group">
                 {!! Form::label('name', 'Name', array('class' => 'col-md-2 control-label')) !!}
                 <div class="col-md-10">
                   {!! Form::text('name',(Request::old("name")?Request::old("name"):null),['class' => 'form-control input-sm','id' => 'name']) !!}
@@ -35,19 +36,27 @@
                   @if ($errors->has('purpose')) <p class="help-block red">*{{ $errors->first('purpose') }}</p> @endif
                 </div>
             </div>
-            
-            <hr>
-            <div class="form-group">
-            	
-		            {!! Form::label('selTable', 'Table', array('class' => 'col-md-2 control-label')) !!}
-		            <div class="col-md-3">
+            </div>
+            <div style="border: 0px solid green; float: right; width: 50%">
+            	<div class="form-group">
+		            {!! Form::label('selTable', 'Table', array('class' => 'col-md-3 control-label')) !!}
+		            <div class="col-md-3" >
 		            {!! Form::select('table',$dbTables, $dbTable != "" ? $dbTable : NULL,['class' => 'form-control select-sm','id' => 'selTable', 'style'=>"width: 10em", 'onchange'=>"selectTable(this.options[this.selectedIndex].value, false)"]) !!}
 		          	</div>
-		          	{!! Form::label('chkSystem', 'System', array('class' => 'col-md-2 control-label', 'title'=>"Include system fields")) !!}
-	            	{!! Form::checkbox('chkSystem',1, false,['id'=>'chkSystem']) !!}
+		          	</div>
+		          	<div class="form-group" style="clear: both">
+		          		{!! Form::label('chkSystem', 'System', array('class' => 'col-md-3 control-label', 'title'=>"Include system fields", 'style'=>"float: left")) !!}
+	            		<div class="col-md-6">
+	            			{!! Form::checkbox('chkSystem',1, false,['id'=>'chkSystem']) !!}
+	            		</div>
+	            	</div>
 	          </div>
-            <h3 class="block-title">Fields</h3>
-            <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnAddField">Add Field</a>
+	          <hr/>
+            <div style="clear: both; white-space: nowrap">
+            	<h3 class="block-title">Fields</h3>
+	            <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnAddField">Add Field</a>
+	            <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnUpdateFields">Update Fields</a>
+            </div>
             <!--<span id="cntFields">0</span>-->
             <div class="form-group" id="formFields" style="overflow-y: auto">
             @if (!is_null(Input::old("field")))
@@ -100,6 +109,7 @@ function launchUpdateFormModal(id, clear) {
 				for (var i = 0; i < data[1].length; i++) {
 					addField(i, data[1][i]);
 				}
+				updateFields();
 			}
 			/*$(".fieldTemplateClone").each(function(i, el) {
 				//var el = this;
@@ -202,44 +212,10 @@ function addField(index, vals) {
 	$("#formFields").append(template);
 	
 	//template.style.display = "block";
-	updateFields();
+	
 	///$(template).on("mousedown", startDrag);
 	$(template).find(".options").find("[class^='opts']").hide();
-	if (vals) {
-		if (vals.id) $(template).find("[id^=fieldId]").val(vals.id);
-		if (vals.name) $(template).find("[id^=fieldName]").val(vals.name);
-		if (vals.label) $(template).find("[id^=fieldLabel]").val(vals.label);
-		if (vals.desc) $(template).find("[id^=fieldDesc]").val(vals.desc);
-		if (vals.type) {
-			$(template).find("[id^=fieldType]").val(vals.type);
-			selectType(template, vals.type);
-		}
-		if (vals.options) {
-			var opts = JSON.parse(vals.options);
-			console.log("  Updating options - ",vals.options," ("+vals.options.length+"), opts - ",opts," ("+opts.length+")");
-			for (var prop in opts) {
-				var f = $(template).find("[name$='[opts]["+vals.type+"]["+prop+"]']");
-				console.log("    f (before) - ", f);
-				if (f.length == 1) {
-					console.log("    f.val (before) - ", f.val());
-					if ((f[0].type == "checkbox" || f[0].type == "radio") && f[0].value == opts[prop]) f.iCheck("check");
-					else f.val(opts[prop]);
-					console.log("    f.val (after) - ", f.val());
-				}
-				else {
-					for (var fi = 0; fi < f.length; fi++) {
-						//f.iCheck("check");
-						if ((f[fi].type == "checkbox" || f[fi].type == "radio") && f[fi].value == opts[prop]) $(f[fi]).iCheck("check");
-					}
-					//f.val(opts[prop]);
-				}
-				if (prop == "options" && vals.type && vals.type == "choice") {
-					var choices = opts[prop];
-					for (var ci = 0; ci < choices.length; ci++) if (choices[ci] != "") addChoice(template, choices[ci]);
-				}
-			}
-		}
-	}
+	updateField(template, vals);
 	/*$(template).find("input").on("ifClicked", function(ev) {
 		console.log("Checkbox clicked");
 	});
@@ -359,11 +335,13 @@ function reorder(dir, index) {
 	updateFields();
 }
 
-function selectTable(name, rel, template, opts) {
+function selectTable(name, rel, template, opts, refresh) {
 	var chkSystem = $("#chkSystem").get(0).checked;
 	console.log("selectTable(name, rel) name - "+name+", rel - "+rel+", opts - ",opts,", template - ",template,", chkSystem - "+chkSystem);
-	if (rel && template) $(template).find(".displayFields").empty();
-	else if (!rel) $("#formFields .fieldTemplate").remove();
+	if (!refresh) {
+		if (rel && template) $(template).find(".displayFields").empty();
+		else if (!rel) $("#formFields .fieldTemplate").remove();
+	}
 	if (name == "0") return;
 	if (name != null) tablename = name;
 	$.ajax({
@@ -377,7 +355,7 @@ function selectTable(name, rel, template, opts) {
 				var systemTables = ["active","created_at", "created_by", "id","remember_token", "updated_at", "updated_by"];
 				for (var i = 0; i < data.columns.length; i++) {
 					var col_tmp = data.columns[i];
-					var col = { id: col_tmp.id, label: col_tmp.label, name: col_tmp.name, type: col_tmp.type };
+					var col = { id: col_tmp.id, label: col_tmp.label, name: col_tmp.name, type: col_tmp.type, len: col_tmp.length };
 					if (col.type == "integer") col.type = "number";
 					else if (col.type == "string") col.type = "text";
 					else if (col.type == "date" || col.type == "datetime" || col.type == "time") {
@@ -388,10 +366,19 @@ function selectTable(name, rel, template, opts) {
 					for (var j = 0; j < systemTables.length; j++) if (systemTables[j] == col.name) isSystem = true;
 					//if (i > 5) continue;
 					if (isSystem == false || (chkSystem)) {
-						if (rel) {
-							addChoiceRel(template, col, opts.display);
+						if (refresh) {
+							$("#formFields .fieldTemplate").each(function(i, el) {
+								if (col.name == $("#fieldName"+i).val()) {
+									console.log("  Checking for ",col);
+									updateField(el, col);
+								}
+							});
+						} else {
+							if (rel) {
+								addChoiceRel(template, col, opts.display);
+							}
+							else addField(i, col);
 						}
-						else addField(i, col);
 					}
 				}
 			}
@@ -429,6 +416,48 @@ function swapElements(obj1, obj2) {
 	}
 }
 
+function updateField(template, vals) {
+	console.log("updateField(template, vals) vals - ",vals);
+	if (vals) {
+		if (vals.id) $(template).find("[id^=fieldId]").val(vals.id);
+		if (vals.name) $(template).find("[id^=fieldName]").val(vals.name);
+		if (vals.label) $(template).find("[id^=fieldLabel]").val(vals.label);
+		if (vals.desc) $(template).find("[id^=fieldDesc]").val(vals.desc);
+		if (vals.type) {
+			$(template).find("[id^=fieldType]").val(vals.type);
+			selectType(template, vals.type);
+		}
+		if (vals.options) {
+			var opts = JSON.parse(vals.options);
+			console.log("  Updating options - ",vals.options," ("+vals.options.length+"), opts - ",opts," ("+opts.length+")");
+			for (var prop in opts) {
+				var f = $(template).find("[name$='[opts]["+vals.type+"]["+prop+"]']");
+				console.log("    f (before) - ", f);
+				if (f.length == 1) {
+					console.log("    f.val (before) - ", f.val());
+					if ((f[0].type == "checkbox" || f[0].type == "radio") && f[0].value == opts[prop]) f.iCheck("check");
+					else f.val(opts[prop]);
+					console.log("    f.val (after) - ", f.val());
+				}
+				else {
+					for (var fi = 0; fi < f.length; fi++) {
+						//f.iCheck("check");
+						if ((f[fi].type == "checkbox" || f[fi].type == "radio") && f[fi].value == opts[prop]) $(f[fi]).iCheck("check");
+					}
+					//f.val(opts[prop]);
+				}
+				if (prop == "options" && vals.type && vals.type == "choice") {
+					var choices = opts[prop];
+					for (var ci = 0; ci < choices.length; ci++) if (choices[ci] != "") addChoice(template, choices[ci]);
+				}
+			}
+		}
+		if (vals.len) {
+			$(template).find("[id^=txtMax]").val(vals.len);
+		}
+	}
+}
+
 function updateFields() {
 	console.log("updateFields() this - ",this);
 	var fields = $("#formFields").find(".fieldTemplate");
@@ -461,7 +490,7 @@ function updateFields() {
 		//var el = this;
 		///console.log(".fieldTemplate(i, el) i - "+i+", el - ", el);
 		$(el).find("[name*='field']").each(function(i2, el2) {
-			///console.log("  field(i2, el2) i - "+i2+", el2 - ", el2);
+			console.log("  field(i2, el2) i - "+i2+", el2 - ", el2);
 			el2.name = el2.name.replace(/\[\d*\]/, "["+i+"]");
 			if (el2.id != "") {
 				el2.id = el2.id.replace(/\d*$/, i);
@@ -469,12 +498,13 @@ function updateFields() {
 				lbl = $(el2).siblings("label").first();
 				if (lbl.length == 0) lbl = $(el2).parent().parent().find("label").first();
 				if (lbl.length == 0) lbl = $(el2).parent().parent().parent().find("label").first();
-				///console.log("  lbl - ", lbl);
+				if (lbl.length == 0) lbl = $(el2).parent().parent().parent().parent().find("label").first();
+				console.log("  lbl - ", lbl);
 				///console.log("  lbl.text() - ", lbl.text());
 				///console.log("  lbl.val() - ", lbl.val());
 				///console.log("  for - ", lbl.attr("for"));
 				lbl.attr("for", el2.id);
-				///console.log("  for - ", lbl.attr("for"));
+				console.log("  for - ", lbl.attr("for"));
 			}
 		});
 		var selType = $(el).find("[id^='fieldType']").get(0);
@@ -491,6 +521,10 @@ function updateFields() {
 
 $(document).ready(function() {
 	$("#btnAddField").on("click", function (ev) { addField(); });
+	$("#btnUpdateFields").on("click", function (ev) {
+		var table = $("#selTable").get(0).options[$("#selTable").get(0).selectedIndex].value;
+		selectTable(table, false, null, null, true);
+	});
 	
 	$("input[type=checkbox]").iCheck("destroy");
 	
