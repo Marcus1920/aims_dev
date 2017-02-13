@@ -65,7 +65,7 @@
 
             "aoColumnDefs": [
                 { "bSearchable": false, "aTargets": [3, 4] },
-                { "bSortable": false, "aTargets": [3,4] }
+                { "bSortable": false, "aTargets": [4] }
             ]
 
          });
