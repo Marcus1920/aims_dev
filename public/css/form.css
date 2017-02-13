@@ -1934,5 +1934,10 @@ label[for=poCheckBox]
 
 
 
+.col-md-6 {
+	white-space: nowrap;
+}
 
-
+label.error {
+	margin-left: 1em;
+}
