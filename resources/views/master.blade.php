@@ -306,8 +306,9 @@
 
 
          <!--  Form Related -->
-        <script src="{{ asset('/js/validation/validate.min.js') }}"></script> <!-- jQuery Form Validation Library -->
-        <script src="{{ asset('/js/validation/validationEngine.min.js') }}"></script> <!-- jQuery Form Validation Library - requirred with above js -->
+        <!--<script src="{{ asset('/js/validation/validate.min.js') }}"></script>--> <!-- jQuery Form Validation Library -->
+        <!--<script src="{{ asset('/js/validation/validationEngine.min.js') }}"></script>--> <!-- jQuery Form Validation Library - requirred with above js -->
+        <script src="{{ asset('/js/validation/jquery.validate.js') }}"></script>
 
 
         <!-- All JS functions -->
@@ -524,7 +525,10 @@
                 }
         }
         </script>
-
+<?php
+	//ini_set("memory_limit", "256M");
+	//die(phpinfo());
+?>
         @include('functions.caseModal')
         @yield('footer')
         @include('version')
