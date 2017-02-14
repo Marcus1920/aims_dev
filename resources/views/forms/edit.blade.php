@@ -155,7 +155,7 @@ function launchUpdateFormModal(id, clear) {
 			$(".form-group").each( function(index) { height += $(this).height(); } );
 			console.log("  height after adding - ", height);
 			$("#formFields .form-group").each( function(index) { height -= $(this).height(); } );
-			height = $(window).get(0).innerHeight - 350;
+			height = $(window).get(0).innerHeight - 300;
 			console.log("Setting height: window.height - ", $(window).height(), ", form-group height - ",height);
 			$("#formFields").height( height );
 		}
@@ -211,7 +211,7 @@ function addField(index, vals) {
 	///template.style.display = "block";
 	$("#formFields").append(template);
 	
-	//template.style.display = "block";
+	template.style.display = "block";
 	
 	///$(template).on("mousedown", startDrag);
 	$(template).find(".options").find("[class^='opts']").hide();
@@ -229,12 +229,13 @@ function addField(index, vals) {
 		console.log("Clicked");
 	});*/
 	
-	$(template).find("input").iCheck("destroy");
+	/*$(template).find("input").iCheck("destroy");
 	$(template).find("input").iCheck({
 		    checkboxClass: 'icheckbox_minimal',
 		    radioClass: 'iradio_minimal',
 		    increaseArea: '50%' // optional
-	});
+	});*/
+	
 	//$(template).find("input").iCheck("check");
 	//$(template).find("input").iCheck("destroy");
 	//$(template).find("input").iCheck("enable");
@@ -435,14 +436,14 @@ function updateField(template, vals) {
 				console.log("    f (before) - ", f);
 				if (f.length == 1) {
 					console.log("    f.val (before) - ", f.val());
-					if ((f[0].type == "checkbox" || f[0].type == "radio") && f[0].value == opts[prop]) f.iCheck("check");
-					else f.val(opts[prop]);
+					//if ((f[0].type == "checkbox" || f[0].type == "radio") && f[0].value == opts[prop]) f.iCheck("check");
+					//else f.val(opts[prop]);
 					console.log("    f.val (after) - ", f.val());
 				}
 				else {
 					for (var fi = 0; fi < f.length; fi++) {
 						//f.iCheck("check");
-						if ((f[fi].type == "checkbox" || f[fi].type == "radio") && f[fi].value == opts[prop]) $(f[fi]).iCheck("check");
+						//if ((f[fi].type == "checkbox" || f[fi].type == "radio") && f[fi].value == opts[prop]) $(f[fi]).iCheck("check");
 					}
 					//f.val(opts[prop]);
 				}
@@ -486,11 +487,13 @@ function updateFields() {
 	});
 	
 	fields.each(function(i, el) {
+		/////$(el).iCheck("destroy");
+		
 		el.style.display = "block";
 		//var el = this;
 		///console.log(".fieldTemplate(i, el) i - "+i+", el - ", el);
 		$(el).find("[name*='field']").each(function(i2, el2) {
-			console.log("  field(i2, el2) i - "+i2+", el2 - ", el2);
+			/////console.log("  field(i2, el2) i - "+i2+", el2 - ", el2);
 			el2.name = el2.name.replace(/\[\d*\]/, "["+i+"]");
 			if (el2.id != "") {
 				el2.id = el2.id.replace(/\d*$/, i);
@@ -499,12 +502,12 @@ function updateFields() {
 				if (lbl.length == 0) lbl = $(el2).parent().parent().find("label").first();
 				if (lbl.length == 0) lbl = $(el2).parent().parent().parent().find("label").first();
 				if (lbl.length == 0) lbl = $(el2).parent().parent().parent().parent().find("label").first();
-				console.log("  lbl - ", lbl);
+				/////console.log("  lbl - ", lbl);
 				///console.log("  lbl.text() - ", lbl.text());
 				///console.log("  lbl.val() - ", lbl.val());
 				///console.log("  for - ", lbl.attr("for"));
 				lbl.attr("for", el2.id);
-				console.log("  for - ", lbl.attr("for"));
+				/////console.log("  for - ", lbl.attr("for"));
 			}
 		});
 		var selType = $(el).find("[id^='fieldType']").get(0);
@@ -516,7 +519,22 @@ function updateFields() {
 		$(el).find("[id^='btnAddChoice']").on("click", function(ev) {
 			addChoice(el);
 		});
+		/*$(el).iCheck("destroy");
+		$(el).iCheck({
+			    //checkboxClass: 'icheckbox_minimal',
+			    radioClass: 'iradio_minimal',
+			    //increaseArea: '50%' // optional
+		});
+		$(el).find(".iCheck-helper").css("position", "relative");*/
 	});
+	//$("input").iCheck("destroy");
+	$("input").iCheck({
+			  //checkboxClass: 'icheckbox_minimal',
+			  //radioClass: 'iradio_minimal',
+			  //increaseArea: '20%' // optional
+	});
+	$(".iCheck-helper").css("position", "relative");
+	$("input").iCheck("update");
 }
 
 $(document).ready(function() {
@@ -526,11 +544,19 @@ $(document).ready(function() {
 		selectTable(table, false, null, null, true);
 	});
 	
-	$("input[type=checkbox]").iCheck("destroy");
+	//$("input[type=checkbox]").iCheck("destroy");
+	////$("input").iCheck("destroy");
 	
 	$("#submitUpdateCustomForm").on("click", function (ev) { 
 		ev.preventDefault();
 		if (checkForm()) $("#updateCustomForm").submit();
+	});
+	
+	$(document).on("ifChecked", function(ev) {
+		console.log("ifChecked(ev) ev - ",ev);
+	});
+	$(document).on("ifUnchecked", function(ev) {
+		console.log("ifUnchecked(ev) ev - ",ev);
 	});
 	
 });
