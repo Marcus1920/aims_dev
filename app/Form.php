@@ -8,6 +8,12 @@ class Form extends Eloquent {
 	protected $table    = 'forms';
 	protected $fillable = ['name','slug','active', 'purpose'];
 	
+	public function save(array $options = array()) {
+		$txtDebug = "save(\$options) \$options - ".print_r($options,1);
+		//die("<pre>$txtDebug<pre>");
+		return parent::save($options);
+	}
+	
 	public function saveFields($req, $fff) {
 		$form_id = $req['formId'];
 		$fields = $req['field'];
@@ -34,7 +40,12 @@ class Form extends Eloquent {
 				/*$fff->validate($field, [
 					'name'=>"required"
 				]);*/
-				if (array_key_exists($field['type'], $field['opts'])) $field['options'] = json_encode($field['opts'][$field['type']]);
+				if (array_key_exists($field['type'], $field['opts'])) {
+					if ($field['type'] == "rel") {
+						//$field['opts'][$field['type']]['display'] = "";
+					}
+					$field['options'] = json_encode($field['opts'][$field['type']]);
+				}	
 				/////$field = array('id'=>$field_id);
 				/////if ($field_id == -1) $field = array('form_id'=>$form_id, 'name'=>$fields['name'][$i]);
 				//if ($field_id == -1) $field = array('form_id'=>$form_id, 'name'=>$fields['name'][$i], 'type'=>$fields['type'][$i]);

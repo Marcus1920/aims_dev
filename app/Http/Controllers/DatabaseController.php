@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB as DB;
+use Illuminate\Database\Query\Builder as Builder;
+
 
 class DatabaseController extends Controller {
 	static function getData($table) {
@@ -9,11 +11,13 @@ class DatabaseController extends Controller {
 		return $data;
 	}
 	
-	static function getTable($name) {
-		$txtDebug = "DatabaseController::getTable()";
-		$tables = self::getTables();
+	static function getTable($name, $form_id = -1) {
+		$txtDebug = "DatabaseController::getTable(\$name, \$form_id = -1) \$name - {$name}, \$form_id - {$form_id}";
+		$tables = self::getTables(false, $form_id);
 		$table = "";
-		foreach ($tables AS $table_tmp) if ($table_tmp['name'] == $name) $table = $table_tmp;
+		foreach ($tables AS $table_tmp) {
+			if ($table_tmp['name'] == $name) $table = $table_tmp;
+		}
 		$txtDebug .= "\n\$table - ".print_r($table,1);
 		/*error_reporting(-1);
 		$txtDebug .= $a;*/
@@ -21,8 +25,8 @@ class DatabaseController extends Controller {
 		return $table;
 	}
 	
-	static public function getTables($basic = false) {
-		$txtDebug = "DatabaseController->getTables()";
+	static public function getTables($basic = false, $form_id = -1) {
+		$txtDebug = "DatabaseController->getTables(\$basic = false, \$form_id = -1) \$basic - {$basic}, \$form_id - {$form_id}";
 		$tables = [];
 		$schema = \DB::getDoctrineSchemaManager();
 		$tables_tmp = $schema->listTables();
@@ -35,6 +39,16 @@ class DatabaseController extends Controller {
 					$col = $col_tmp->toArray();
 					$col['label'] = ucwords(str_replace(array("_"),array(" "),$col['name']));
 					$col['type'] = $col['type']->getName();
+					$col['field_id'] = -1;
+					if ($form_id != -1) {
+						$field = DB::table("forms_fields")->select("*")->where("table","=",$table['name'])->where("form_id","=",$form_id)->where("name","=",$col['name']);
+						//;
+						if ($field->count()>0) {
+							//die("<pre>".print_r($field->get(),1)."</pre>");
+							$col['field_id'] = $field->get()[0]->id;
+							$col['order'] = $field->get()[0]->order;
+						}
+					}
 					//$tables[$table->getName()][] = 
 					//$table['columns'][] = $col;
 					$table['columns'][] = $col;

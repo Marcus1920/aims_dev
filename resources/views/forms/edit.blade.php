@@ -8,6 +8,13 @@
 	//die(phpinfo());
 	$dbTable = "";
 	//$dbTable = "cases";
+	$tips = array(
+		'btnAddField'=>"Add a new field"
+		, 'btnUpdateFields'=>"Update existing fields to match current database info"
+		, 'chkSystem'=>"Include system fields"
+		, 'chkOverwrite'=>"Overwrite any existing customizations"
+	);
+	$fuck = "you";
 ?>
 <!-- Modal Default -->
 <div class="modal fade modalEditForm" id="modalEditForm" tabindex="-1" role="dialog" aria-hidden="true">
@@ -40,22 +47,27 @@
             <div style="border: 0px solid green; float: right; width: 50%">
             	<div class="form-group">
 		            {!! Form::label('selTable', 'Table', array('class' => 'col-md-3 control-label')) !!}
-		            <div class="col-md-3" >
-		            {!! Form::select('table',$dbTables, $dbTable != "" ? $dbTable : NULL,['class' => 'form-control select-sm','id' => 'selTable', 'style'=>"width: 10em", 'onchange'=>"selectTable(this.options[this.selectedIndex].value, false)"]) !!}
+		            <div class="col-md-9" >
+		            {!! Form::select('table',$dbTables, $dbTable != "" ? $dbTable : NULL,['class' => 'form-control select-sm','id' => 'selTable', 'style'=>"", 'onchange'=>"selectTable(this.options[this.selectedIndex].value, false)"]) !!}
 		          	</div>
 		          	</div>
 		          	<div class="form-group" style="clear: both">
-		          		{!! Form::label('chkSystem', 'System', array('class' => 'col-md-3 control-label', 'title'=>"Include system fields", 'style'=>"float: left")) !!}
-	            		<div class="col-md-6">
+		          	<div class="col-md-3"></div>
+		          		{!! Form::label('chkSystem', 'System', array('class' => 'col-md-3 control-label', 'title'=>"$tips[chkSystem]", 'style'=>"float: left", 'data-placement'=>"bottom")) !!}
+	            		<div class="col-md-1">
 	            			{!! Form::checkbox('chkSystem',1, false,['id'=>'chkSystem']) !!}
+	            		</div>
+	            		{!! Form::label('chkOverwrite', 'Overwrite', array('class' => 'col-md-3 control-label', 'title'=>"$tips[chkOverwrite]", 'style'=>"float: left")) !!}
+	            		<div class="col-md-1">
+	            			{!! Form::checkbox('chkOverwrite',1, false,['id'=>'chkOverwrite']) !!}
 	            		</div>
 	            	</div>
 	          </div>
 	          <hr/>
             <div style="clear: both; white-space: nowrap">
             	<h3 class="block-title">Fields</h3>
-	            <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnAddField">Add Field</a>
-	            <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnUpdateFields">Update Fields</a>
+	            <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnAddField" title="{{$tips['btnAddField']}}">Add Field</a>
+	            <a class="btn btn-sm" data-toggle="modal" data-target=".modalAddField" id="btnUpdateFields" title="{{$tips['btnUpdateFields']}}">Update Fields</a>
             </div>
             <!--<span id="cntFields">0</span>-->
             <div class="form-group" id="formFields" style="overflow-y: auto">
@@ -83,10 +95,11 @@
 <script type="text/javascript">
 var cntFields = 0;
 var tablename = "";
+var form_id =-1;
 
 
 function launchUpdateFormModal(id, clear) {
-	console.log("launchUpdateFormModal(id) id - "+id+", fields - ",$("#formFields .fieldTemplate").length);
+	console.log("launchUpdateFormModal(id) id - "+id+", clear - ",clear,", fields - ",$("#formFields .fieldTemplate").length,", this - ",this);
 	$(".modal-body #formId").val(id);
 	//$("#formFields").remove(".fieldTemplate");
 	if (clear) $("#formFields .fieldTemplate").remove();
@@ -150,7 +163,7 @@ function launchUpdateFormModal(id, clear) {
 				}
 			}
 			//$("#selTable").get(0).selectedIndex = 5;
-			$("a[title!=''],input[title!=''],label[title!='']").tooltip( { track: true } );
+			$("a[title!=''],input[title!=''],label[title!='']").tooltip( {placement:"top", track: true } );
 			var height = 0;
 			$(".form-group").each( function(index) { height += $(this).height(); } );
 			console.log("  height after adding - ", height);
@@ -188,7 +201,13 @@ function addChoiceRel(template, val, display) {
 	if (val) {
 		choice.value = val.name;
 		label.innerText = val.name;
-		if (typeof display != "undefined") for (var i = 0; i < display.length; i++) if (display[i] == val.name) choice.checked = true;
+		if (typeof display != "undefined") {
+			///console.log("  Looping thru display - ", display);
+			for (var i = 0; i < display.length; i++) {
+				///console.log("    ",display[i]," == ",val.name);
+				if (display[i] == val.name) choice.checked = true;
+			}
+		}
 	}
 	wrapper.className = "clearfix";
 	$(wrapper).css("clear","both");
@@ -196,7 +215,7 @@ function addChoiceRel(template, val, display) {
 	console.log("  label - ", label);
 	wrapper.appendChild(label);
 	displayFields.append(wrapper);
-	updateFields();
+	updateField(template);
 }
 
 function addField(index, vals) {
@@ -215,7 +234,7 @@ function addField(index, vals) {
 	
 	///$(template).on("mousedown", startDrag);
 	$(template).find(".options").find("[class^='opts']").hide();
-	updateField(template, vals);
+	updateField(template, vals, index);
 	/*$(template).find("input").on("ifClicked", function(ev) {
 		console.log("Checkbox clicked");
 	});
@@ -240,6 +259,8 @@ function addField(index, vals) {
 	//$(template).find("input").iCheck("destroy");
 	//$(template).find("input").iCheck("enable");
 	//$(template).find("input").iCheck("update");
+	
+	//$(template).find("a[title!=''],input[title!=''],label[title!='']").tooltip( {placement:"right", track: true } );
 	/*$(template).find("[id^='fieldType']").on("change", function(ev) {
 		console.log("fieldType.change: ev - ", ev, ", this - ",this);
 		selectType(template, this.options[this.selectedIndex].value);
@@ -250,7 +271,8 @@ function addField(index, vals) {
 	if (!vals) template.scrollIntoView();
 	else if (vals.type == "rel") {
 		var opts = JSON.parse(vals.options);
-		selectTable(opts.table, true, $(template).find(".optsRelated").get(0), opts)
+		selectTable(opts.table, true, $(template).find(".optsRelated").get(0), opts, false, index);
+		////updateField(template, vals, index);
 	}
 }
 
@@ -290,8 +312,8 @@ function checkForm() {
 	return valid;
 }
 
-function duplicateField(index) {
-	var field = $("#formFields").find(".fieldTemplate").get(index);
+function duplicateField(field) {
+	//var field = $("#formFields").find(".fieldTemplate").get(index);
 	var vals = { type: "" }
 	var type = $(field).find("[id^=fieldType]").val();
 	var newfield = $(field).clone(true).get(0);
@@ -299,21 +321,37 @@ function duplicateField(index) {
 	$("#formFields").append(newfield);
 	newfield.scrollIntoView();
 	updateFields();
-	$(newfield).find("input").iCheck("destroy");
-	$(newfield).find("input").iCheck({
+	$(newfield).find("input").iCheck("update");
+	/*$(newfield).find("input").iCheck({
 		    checkboxClass: 'icheckbox_minimal',
 		    radioClass: 'iradio_minimal'
-	});
+	});*/
 	$(newfield).find("[id^=fieldType]").val(type);
 	$(newfield).find("[id^=fieldId]").val("");
 }
 
-function deleteField(index) {
-	console.log("deleteField(index) index - "+index);
+function deleteField(field) {
+	console.log("deleteField(field) field - "+field);
 	//$("#formFields").find(".fieldTemplateClone")[1].remove();
-	var field = $("#formFields").find(".fieldTemplate").get(index);
+	//var field = $("#formFields").find(".fieldTemplate").get(index);
 	$(field).remove();
 	updateFields();
+}
+
+function getFieldIndex(template) {
+	console.log("  Searching for index");
+	//var tt = $(template).closest('[name|="field"]');
+	var fieldTemplate = $(template).parents('.fieldTemplate').get(0);
+	console.log("  fieldTemplate - ",fieldTemplate);
+	var field = $(fieldTemplate).find('[name*="field"]').get(0);
+	console.log("  field - ",field);
+	var index = -1;
+	if (typeof field != "undefined") {
+		var regex = /field\[(\d+)\]/g.exec(field.name);
+		console.log("  regex - ",regex);
+		index = regex[1];
+	}
+	return index;
 }
 
 function orderDown(e) {
@@ -324,21 +362,39 @@ function orderUp(e) {
 	
 }
 
-function reorder(dir, index) {
-	console.log("reorder(dir, index) dir - "+dir+", index "+index);
+function reorder(dir, el) {
+	console.log("reorder(dir, e) dir - "+dir+", el - ", el);
 	var fields = $("#formFields").find(".fieldTemplate");
-	var index2 = 0;
+	/*var index2 = 0;
 	if (dir > 0) index2 = index-1;
 	else if (dir < 0) index2 = index+1;
 	var el1 = fields.get(index);
 	var el2 = fields.get(index2);
 	swapElements(el1, el2);
+	updateFields();*/
+	var el2 = null;
+	fields.each(function(i) {
+		if (this == el) {
+			var index2 = 0;
+			if (dir > 0) index2 = i-1;
+			else if (dir < 0) index2 = i+1;
+			el2 = fields.get(index2);
+			console.log("  GotCHA! el2 - ",el2);
+		}
+	});
+	
+	if (el2 != null) swapElements(el, el2);
 	updateFields();
 }
 
-function selectTable(name, rel, template, opts, refresh) {
+function selectTable(name, rel, template, opts, refresh, index) {
 	var chkSystem = $("#chkSystem").get(0).checked;
-	console.log("selectTable(name, rel) name - "+name+", rel - "+rel+", opts - ",opts,", template - ",template,", chkSystem - "+chkSystem);
+	var form_id = $(".modal-body #formId").val();
+	//var index = $(template).closest('.fieldTemplate');
+	console.log("selectTable(name, rel) form_id - "+form_id+", index - "+index+", name - "+name+", rel - "+rel+", opts - ",opts,", template - ",template,", chkSystem - "+chkSystem);
+	if (typeof index == "undefined") {
+		index = getFieldIndex(template);
+	}
 	if (!refresh) {
 		if (rel && template) $(template).find(".displayFields").empty();
 		else if (!rel) $("#formFields .fieldTemplate").remove();
@@ -348,15 +404,17 @@ function selectTable(name, rel, template, opts, refresh) {
 	$.ajax({
 		type    :"GET",
 		dataType:"json",
-		url     :"{!! url('/forms/database/tables/"+ tablename + "')!!}",
+		url     :"{!! url('/forms/database/tables/"+ tablename + "/"+form_id+"')!!}",
 		success :function(data) {
 			
 			console.log("data - ", data);
 			if(data !== null) {
 				var systemTables = ["active","created_at", "created_by", "id","remember_token", "updated_at", "updated_by"];
+				var i2 = 0;
 				for (var i = 0; i < data.columns.length; i++) {
 					var col_tmp = data.columns[i];
-					var col = { id: col_tmp.id, label: col_tmp.label, name: col_tmp.name, type: col_tmp.type, len: col_tmp.length };
+					var col = { id: col_tmp.id, label: col_tmp.label, name: col_tmp.name, type: col_tmp.type, len: col_tmp.length};
+					if (col_tmp.field_id) col.id = col_tmp.field_id;
 					if (col.type == "integer") col.type = "number";
 					else if (col.type == "string") col.type = "text";
 					else if (col.type == "date" || col.type == "datetime" || col.type == "time") {
@@ -368,21 +426,34 @@ function selectTable(name, rel, template, opts, refresh) {
 					//if (i > 5) continue;
 					if (isSystem == false || (chkSystem)) {
 						if (refresh) {
-							$("#formFields .fieldTemplate").each(function(i, el) {
-								if (col.name == $("#fieldName"+i).val()) {
-									console.log("  Checking for ",col);
-									updateField(el, col);
+							var el = null;
+							$("#formFields .fieldTemplate").each(function(i) {
+								//if (col.name == $(this).find("[id*='fieldName']").val()) {
+								if (col.id == $(this).find("[id*='fieldId']").val() || col.name == $(this).find("[id*='fieldName']").val()) {
+									el = this;
 								}
 							});
+							if (el) {
+								console.log("  Updating for ",col);
+								updateField(el, col);
+							} else {
+								console.log("  Adding for ",col);
+								addField(i, col);
+							}
 						} else {
 							if (rel) {
-								addChoiceRel(template, col, opts.display);
+								console.log("  Adding choice for ",col);
+								if (opts) addChoiceRel(template, col, opts.display);
+								else addChoiceRel(template, col);
 							}
 							else addField(i, col);
 						}
+						i2++;
 					}
 				}
 			}
+			console.log("WtF!?");
+			///updateField(template, null, index);
 		}
 	});
 }
@@ -417,13 +488,40 @@ function swapElements(obj1, obj2) {
 	}
 }
 
-function updateField(template, vals) {
-	console.log("updateField(template, vals) vals - ",vals);
+function updateField(template, vals, index) {
+	console.log("updateField(template, vals, index) vals - ",vals,",index - ", index,", template - ",template);
+	if (typeof index == "undefined") {
+		index = getFieldIndex(template);
+	}
+	if (typeof index != "undefined") $(template).find("[name*='field']").each(function(i2, el2) {
+		el2.name = el2.name.replace(/\[\d*\]/, "["+index+"]");
+		if (el2.id != "") el2.id = el2.id.replace(/\d*$/, index);
+	});
+	if (template.className.search("fieldTemplate") != -1) {
+		$(template).find(".sort_asc").off("click");
+		$(template).find(".sort_desc").off("click");
+		$(template).find(".delete").off("click");
+		$(template).find(".duplicate").off("click");
+		$(template).find(".sort_asc").on("click", function(e) {
+			reorder(1, template);
+		});
+		$(template).find(".sort_desc").on("click", function(e) {
+			reorder(-1, template);
+		});
+		$(template).find(".delete").on("click", function(e) {
+			deleteField(template);
+		});
+		$(template).find(".duplicate").on("click", function(e) {
+			duplicateField(template);
+		});
+	}
 	if (vals) {
 		if (vals.id) $(template).find("[id^=fieldId]").val(vals.id);
 		if (vals.name) $(template).find("[id^=fieldName]").val(vals.name);
 		if (vals.label) $(template).find("[id^=fieldLabel]").val(vals.label);
 		if (vals.desc) $(template).find("[id^=fieldDesc]").val(vals.desc);
+		if (typeof vals.order != "undefined") $(template).find("[id^=fieldOrder]").val(vals.order);
+		else if (typeof index != "undefined") $(template).find("[id^=fieldOrder]").val(index);
 		if (vals.type) {
 			$(template).find("[id^=fieldType]").val(vals.type);
 			selectType(template, vals.type);
@@ -436,8 +534,15 @@ function updateField(template, vals) {
 				console.log("    f (before) - ", f);
 				if (f.length == 1) {
 					console.log("    f.val (before) - ", f.val());
-					//if ((f[0].type == "checkbox" || f[0].type == "radio") && f[0].value == opts[prop]) f.iCheck("check");
-					//else f.val(opts[prop]);
+					if ((f[0].type == "checkbox" || f[0].type == "radio") && f[0].value == opts[prop]) {
+						console.log("    Check it");
+						//f.iCheck("destroy");
+						//f.iCheck("destroy");
+						//f.iCheck("destroy");
+						f.iCheck("check");
+						f.iCheck("update");
+					}
+					else f.val(opts[prop]);
 					console.log("    f.val (after) - ", f.val());
 				}
 				else {
@@ -457,6 +562,13 @@ function updateField(template, vals) {
 			$(template).find("[id^=txtMax]").val(vals.len);
 		}
 	}
+	var toTip = $(template).find("[title!='']");
+	toTip = $(template).find("[data-original-title!='']");
+	console.log("toTip - ",toTip);
+	toTip.each(function() {
+		$(this).tooltip("destroy");
+		$(this).tooltip( {placement:"right", track: true } );
+	});
 }
 
 function updateFields() {
@@ -468,35 +580,20 @@ function updateFields() {
 		else $(this).find(".sort_asc").css("visibility","visible");
 		if (index > 0 && index == fields.length-1) $(this).find(".sort_desc").css("visibility","hidden");
 		else $(this).find(".sort_desc").css("visibility","visible");
-		$(this).find(".sort_asc").off("click");
-		$(this).find(".sort_desc").off("click");
-		$(this).find(".delete").off("click");
-		$(this).find(".duplicate").off("click");
-		$(this).find(".sort_asc").on("click", function(e) {
-			reorder(1, index);
-		});
-		$(this).find(".sort_desc").on("click", function(e) {
-			reorder(-1, index);
-		});
-		$(this).find(".delete").on("click", function(e) {
-			deleteField(index);
-		});
-		$(this).find(".duplicate").on("click", function(e) {
-			duplicateField(index);
-		});
+		$(this).find("[id^=fieldOrder]").val(index);
 	});
 	
 	fields.each(function(i, el) {
 		/////$(el).iCheck("destroy");
-		
+		/////console.log("  fields.each(i, el) i - ",i,", el - ",el);
 		el.style.display = "block";
 		//var el = this;
 		///console.log(".fieldTemplate(i, el) i - "+i+", el - ", el);
 		$(el).find("[name*='field']").each(function(i2, el2) {
 			/////console.log("  field(i2, el2) i - "+i2+", el2 - ", el2);
-			el2.name = el2.name.replace(/\[\d*\]/, "["+i+"]");
+			/////el2.name = el2.name.replace(/\[\d*\]/, "["+i+"]");
 			if (el2.id != "") {
-				el2.id = el2.id.replace(/\d*$/, i);
+				/////el2.id = el2.id.replace(/\d*$/, i);
 				var lbl = $(el2).parent().find("label").first();
 				lbl = $(el2).siblings("label").first();
 				if (lbl.length == 0) lbl = $(el2).parent().parent().find("label").first();
@@ -521,26 +618,34 @@ function updateFields() {
 		});
 		/*$(el).iCheck("destroy");
 		$(el).iCheck({
-			    //checkboxClass: 'icheckbox_minimal',
+			    checkboxClass: 'icheckbox_minimal',
 			    radioClass: 'iradio_minimal',
 			    //increaseArea: '50%' // optional
-		});
-		$(el).find(".iCheck-helper").css("position", "relative");*/
+		});*/
+		$(el).iCheck("update");
+		//$(el).find(".iCheck-helper").css("position", "relative");
 	});
 	//$("input").iCheck("destroy");
-	$("input").iCheck({
+	//$("input").iCheck({
 			  //checkboxClass: 'icheckbox_minimal',
 			  //radioClass: 'iradio_minimal',
 			  //increaseArea: '20%' // optional
-	});
-	$(".iCheck-helper").css("position", "relative");
-	$("input").iCheck("update");
+	//});
+	/*$(".iCheck-helper").css("position", "relative");
+	$("input").iCheck("destroy");
+	//$("input").iCheck("update");
+	$("input").iCheck({
+			    checkboxClass: 'icheckbox_minimal',
+			    radioClass: 'iradio_minimal',
+			    //increaseArea: '50%' // optional
+		});*/
 }
 
 $(document).ready(function() {
 	$("#btnAddField").on("click", function (ev) { addField(); });
 	$("#btnUpdateFields").on("click", function (ev) {
 		var table = $("#selTable").get(0).options[$("#selTable").get(0).selectedIndex].value;
+		// selectTable(name, rel, template, opts, refresh, index)
 		selectTable(table, false, null, null, true);
 	});
 	

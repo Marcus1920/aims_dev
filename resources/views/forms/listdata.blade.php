@@ -1,45 +1,83 @@
-<?php
-  
-?>
-<!-- Modal Default -->
-<div class="modal fade modalPreviewForm" id="modalPreviewForm" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Custom Form Preview</h4>
-            </div>
-            <div class="modal-body">
-            {!! Form::open(['url' => 'testForm', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"testCustomForm", 'style'=>"height: 100%", 'novalidate_'=>"" ]) !!}
-            <div style="height: 100%; overflow-x: hidden; overflow-y: auto;"></div>
-            </div>
-            <div class="modal-footer">
-							<div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <button type="submit" id='submitTestCustomForm' type="button" class="btn btn-sm">Test</button>
-                </div>
-            	</div>
-            </div>
-            {!! Form::close() !!}
-        </div>
-    </div>
+@extends('master')
+
+@section('content')
+<ol class="breadcrumb hidden-xs">
+    <li><a href="#">Administration</a></li>
+    <li><a href="{{ url('list-forms') }}">Forms</a></li>
+    <li class="active">Forms Data Listing</li>
+</ol>
+
+<h4 class="page-title">Forms Data</h4>
+<div class="block-area" id="alternative-buttons">
+	<h3 class="block-title" style="line-height: 1.75em;">Forms Data Listing</h3>
+	{!! Form::select('selForm',$forms, "",['class' => 'form-control select-sm','id' => 'selForm', 'style'=>"display: initial; height: auto; line-height: 1.75em !important; margin: 0 0.75em; padding: 0; width: 10em"]) !!}
+	<a class="btn btn-sm" data-toggle="modal" data-target=".modalAddForm" style="margin-top: -0.25em; padding: 0.25em">
+     Add Data
+  </a>
 </div>
-<script type="text/javascript">
-function launchPreviewFormModal(id) {
+
+<!-- Responsive Table -->
+<div class="block-area" id="responsiveTable">
+	<div class="table-responsive">
+		@if(Session::has('success'))
+      <div class="alert alert-success alert-icon">
+         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        {{ Session::get('success') }}
+        <i class="icon">&#61845;</i>
+      </div>
+    @endif
+		<table class="table tile table-striped" id="formsTable">
+			<thead>
+				<tr>
+					<th style="width: 3em;">id</th>
+					<th style="width: 10em;">Created</th>
+					<th style="width: 30%;">Title</th>
+					<th style="width: 40%;">Data</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+</div>
+
+@include('forms.data.form')
+@endsection
+
+@section('footer')
+<script>
+var editForm = false;
+function doAction(el, id) {
+	var action = el.options[el.selectedIndex].value;
+	console.log("doAction(el, id) id - ",id,", action - ",action,", el - ",el);
+	if (action == "edit") {
+		$(".modalDataForm").modal();
+		launchFormModal(id, true);
+	} else if (action == "view") {
+		$(".modalDataForm").modal();
+		launchFormModal(id);
+	} else if (action == "editform") {
+		console.log(this);
+	}
+	el.selectedIndex = 0;
+}
+
+function launchFormModal(id, edit) {
+	console.log("launchFormModal(id, edit) id - ",id,", edit - ",edit);
+	editForm = edit;
 	var symbols = { AUD: "$", BRL: "R$", CAD: "$", CNY: "¥", EUR: "€", HKD: "$", INR: "?", JPY: "¥", MXN: "$", NZD: "$", NOK: "kr", GBP: "&pound;", RUB: "?",SGD: "$", KRW: "?", SEK: "kr", CHF: "Fr", TRY: "?", USD: "$", ZAR: "R" }
 	
 	$.ajax({
 		type    :"GET",
 		dataType:"json",
-		url     :"{!! url('/forms/"+ id + "')!!}",
+		url     :"{!! url('/forms/data/"+ id + "')!!}",
 		success :function(data) {
 			console.log("data - ", data);
 			if (data[0] !== null) {
-				$("#modalPreviewForm .modal-title").text(data[0].name);
-				$("#modalPreviewForm .modal-header i").remove();
-				$("#modalPreviewForm .modal-header").append("<i>"+data[0].purpose+"</i>");
+				$("#modalDataForm .modal-title").text(data[0].name);
+				$("#modalDataForm .modal-header i").remove();
+				$("#modalDataForm .modal-header").append("<i>"+data[0].purpose+"</i>");
 			}
-			$("#modalPreviewForm .modal-body form div").empty();
+			$("#modalDataForm .modal-body .fields").empty();
 			var theRules = {};
 			if (data[1] !== null) {
 				for (var i = 0; i < data[1].length; i++) {
@@ -55,7 +93,7 @@ function launchPreviewFormModal(id) {
 					var lbl = document.createElement("label");
 					lbl.className = "col-md-2 control-label";
 					lbl.innerText = data[1][i].label;
-					$(lbl).attr("for", data[1][i].name);
+					///$(lbl).attr("for", data[1][i].name);
 					//$(lbl).css("white-space", "nowrap");
 					$(group).append(lbl);
 					
@@ -72,7 +110,7 @@ function launchPreviewFormModal(id) {
 					input.style.display = "inline-block";
 					input.style.width = "initial";
 					input.type = "text";
-					
+					$(lbl).attr("for", input.id);
 					$(input).attr("data-opts", data[1][i].options);
 					
 					if (data[1][i].type == "file") input.type = "file";
@@ -166,7 +204,7 @@ function launchPreviewFormModal(id) {
 		    radioClass: 'iradio_minimal'
 	});
 					$(group).append(div);
-					$("#modalPreviewForm .modal-body div").first().append(group);
+					$("#modalDataForm .modal-body div").first().append(group);
 					$('.datetime').datetimepicker({ collapse: false, sideBySide: true });
 					$('.date-only').datetimepicker({ pickTime: false });
 					$('.time-only').datetimepicker({ pickDate: false });
@@ -185,6 +223,7 @@ function launchPreviewFormModal(id) {
 					if (title != "") $(input).tooltip({placement: "right", html: true, animation: true, template: '<div class="tooltip" role="tooltip" style="white-space: pre-wrap"><div class="tooltip-arrow"></div><div class="tooltip-inner" style="background-color: rgba(128,128,128,0.75); "></div></div>',});
 				}
 			}
+			updateFields(data[1]);
 			
 			/*$("#testCustomForm").validate({
 				submitHandler: function(form) {
@@ -193,15 +232,15 @@ function launchPreviewFormModal(id) {
 			});*/
 			
 			var height = $(window).get(0).innerHeight - 200;
-			console.log("  height - ", height, ", #modalPreviewForm .modal-body height - ", $("#modalPreviewForm .modal-body").height());
-			if ($("#modalPreviewForm .modal-body").height() > height) $("#modalPreviewForm .modal-body").height( height );
+			console.log("  height - ", height, ", #modalDataForm .modal-body height - ", $("#modalDataForm .modal-body").height());
+			if ($("#modalDataForm .modal-body").height() > height) $("#modalDataForm .modal-body").height( height );
 			
 			jQuery.validator.setDefaults({
 				debug: true
 				, success: "valid"
 			});
 			
-			$("#testCustomForm").validate({		
+			$("#testCustomForm").validate({
 			onfocusout: function(el, ev) {
 				console.log("onfocusout(el, ev) el - , ",el);
 				//$(el.form).valid();
@@ -232,107 +271,86 @@ function launchPreviewFormModal(id) {
 	});
 }
 
-function getRelatedItems(opts, sel) {
-	var table = opts.table;
-	console.log("getRelatedItems(opts, sel) opts - ",opts,", sel - ", sel);
-	$.ajax({
-		type    :"GET",
-		dataType:"json",
-		url     :"{!! url('/forms/database/data/"+ table + "')!!}",
-		success :function(data) {
-			console.log("  data - ", data);
-			if (data) for (var i = 0; i < data.length; i++) {
-				var val = "";
-				if (opts.display) for (var oi = 0; oi < opts.display.length; oi++) val += data[i][opts.display[oi]] + " ";
-				$(sel).append('<option value="'+val+'">'+val+'</option>');
-				///console.log("    "+i+", val - ",val);
-			}
-		}
-	});
+function selectForm(el) {
+	var form_id = -1;
+	var form_name = "";
+	if (Object.prototype.isPrototypeOf(el)) {
+		form_id = el.options[el.selectedIndex].value;
+		form_name = el.options[el.selectedIndex].text;
+	}
+	console.log("selectForm(el) form_id - ",form_id,", form_name - ",form_name,", el - ", el);
+	console.log("iii - is ", Object.prototype.isPrototypeOf(el));
+	if (form_id != -1) $("input[type='search']").val(form_name);
+	//else $("input[type='search']").val("");
+	$("input[type='search']").blur();
+	$("input[type='search']").change();
+	$("input[type='search']").trigger("search");
+	$("input[type='search']").blur();
 }
 
-$(document).ready(function() {
-	$("#submitTestCustomForm").on("click", function (ev) { 
-		console.log("#submitTestCustomForm.click(ev) this - ", this);
-		//ev.preventDefault();
-		$("#testCustomForm").valid();
-		//if (checkForm()) $("#updateCustomForm").submit();
-		/*$("#testCustomForm").validate({
-				submitHandler: function(form) {
-					console.log("submitHandler(form) form - ", form);
-				}
-			});*/
-			//$("#testCustomForm").submit();
-	});
-	
-	//$("#testCustomForm").validate({
-		/*submitHandler: function(form) {
-			console.log("submitHandler(form) form - ", form);
-		}*/
-	//});
-});
+function updateFields(fields) {
+	var form = $("#modalDataForm").first();
+	console.log("updateFields(fields, form) fields - ",fields,", form - ", form);
+}
 
-$().ready(function() {
-	var valid = true;
-	var opts = {};
-	
-	/*$.validator.addMethod("currency", function(value, element) {
-		var elName = element.id;
-		var err = {};
-		var opts = JSON.parse($(element).attr("data-opts"));
-		valid = true;
-		//return 
-		valid = this.optional(element) || /^[\-\+]{0,1}[\d\.]+$/.test(value);
-		if (opts.max && value > Number(opts.max) && opts.min && value < Number(opts.min)) {
-			err[elName] = opts.min+"> & <"+opts.max;
-			//valid = false;
-		} else if (opts.min && value < Number(opts.min)) {
-			err[elName] = "> "+opts.min;
-			//valid = false;
-		} else if (opts.max && value > Number(opts.max)) {
-			err[elName] = "< "+opts.max;
-			//valid = false;
-		}
-		this.showErrors(err);
-		this.defaultShowErrors();
-		console.log("currency: valid - ",valid,", opts - ",opts,", elName - "+elName+", value - "+element.value+", element - ",element);
-		return valid;
-	}, "Monetary values only");*/
-	
-	/*$.validator.addMethod("number", function(value, element) {
-		var elName = element.id;
-		var err = {};
-		var opts = JSON.parse($(element).attr("data-opts"));
-		var valid = this.optional(element) || /^[0-9\ \-\+\.]+$/i.test(value);
-		if ((opts.decimals) == 0) valid = this.optional(element) || /^[0-9\ \-\+]+$/i.test(value);
-		if (!opts.negative && value.indexOf("-") != -1) {
-			//valid = false;
-			err[elName] = " > 0";
-		}
-		if (opts.max && value > Number(opts.max) && opts.min && value < Number(opts.min)) {
-			err[elName] = opts.min+"> & <"+opts.max;
-			//valid = false;
-		} else if (opts.min && value < Number(opts.min)) {
-			err[elName] = "> "+opts.min;
-			//valid = false;
-		} else if (opts.max && value > Number(opts.max)) {
-			err[elName] = "< "+opts.max;
-			//valid = false;
-		}
-		this.showErrors(err);
-		this.defaultShowErrors();
-		console.log("number: valid - ",valid,", opts - ",opts,", elName - "+elName+", value - "+element.value+", element - ", element);
-		return valid;
-	}, "Integer numbers only");*/
-	
-	$.validator.addMethod("EMAIL", function(value, element) {
-		return this.optional(element) || /^[a-zA-z0-9._-]+@[a-zA-z0-9-]+\.[a-zA-Z.]{2,5}$/i.test(value);
-	}, "Email Address is Invalid! Please enter a valid email address");
-	$.validator.addMethod("PASSWORD", function(value, element) {
-		return this.optional(element) || /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}$/.test(value);
-	}, "Passwords are 8-16 long with uppercase, lowercase and at least one number");
-	$.validator.addMethod("SUBMIT", function(value, element) {
-		return this.optional(element) || /^[^ ]$/.test(value);
-	}, "You did not click the submit button");
+$(function() {
+    var oForm = $('#formsTable').DataTable({
+        "autoWidth":false,
+        processing: true,
+        serverSide: true,
+        ajax: {
+					url: '{!! route("formsdata.data") !!}'
+					, data: function(d) {
+						d.fuck = "you";
+					}
+        },
+        columns: [
+            { data: 'id', name: 'forms_data.id' },
+            { data: 'created_at' },
+            { data: 'name', searchable: true, search: "name" },
+            { data: 'data', name: 'data' },
+            { data: 'actions',  name: 'actions' }
+            //{ data: 'updated_at', name: 'updated_at' }
+        ]
+				, initComplete: function () {
+					console.log("initComplete");
+					this.api().columns().every(function () {
+						console.log("  every()");
+						var column = this;
+						var input = document.createElement("input");
+						$(input).appendTo($(column.footer()))
+						.on('change', function () {
+							column.search($(this).val(), false, false, true).draw();
+						});
+					});
+				}
+        , "aoColumnDefs": [
+					{ "bSearchable": true, "aTargets": [ 1 ] },
+					{ "bSortable": false, "aTargets": [  ] }
+				]
+    });
+    
+    $("#selForm").on("change", function(e) { selectForm(e.currentTarget); });
+    /*$("#selForm").on("change", function(e) { 
+    	var form_id = e.currentTarget.options[e.currentTarget.selectedIndex].value;
+			var form_name = e.currentTarget.options[e.currentTarget.selectedIndex].text;
+			var oForm = {id: form_id, name: form_name}
+    	selectForm(oForm); 
+    });
+    */
+    $("#formsTable_wrapper .row").first().css("margin-top", "-4.75em");
+    $("#formsTable_wrapper .row").first().css("float", "right");
+    $("#formsTable_wrapper .row").first().find(".col-sm-6").css("width", "auto");
+    @if(isset($form_id) && $form_id != -1)
+    	$("#selForm").val("{{ $form_id }}");
+    	$("#selForm").trigger("change");
+    	//selectForm("{{ $form_id }}");
+    	oForm.draw();
+    @endif
 });
 </script>
+
+<style type="">
+.row { margin: 0;}
+</style>
+@endsection

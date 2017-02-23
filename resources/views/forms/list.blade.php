@@ -1,6 +1,12 @@
 @extends('master')
 
 @section('content')
+<ol class="breadcrumb hidden-xs">
+    <li><a href="#">Administration</a></li>
+    <li><a href="{{ url('list-forms') }}">Forms</a></li>
+    <li class="active">Forms Listing</li>
+</ol>
+
 <h4 class="page-title">Forms</h4>
 <div class="block-area" id="alternative-buttons">
 	<h3 class="block-title">Forms Listing</h3>
@@ -18,6 +24,7 @@
         <i class="icon">&#61845;</i>
       </div>
     @endif
+    {!! Form::open(['url' => 'list-formsdata', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"listForm" ]) !!}
 		<table class="table tile table-striped" id="formsTable">
 			<thead>
 				<tr>
@@ -29,8 +36,11 @@
 				</tr>
 			</thead>
 		</table>
+		{!! Form::hidden('form_id',NULL,['id' => 'formId']) !!}
+		{!! Form::close() !!}
 	</div>
 </div>
+
 @include('forms.preview')
 @include('forms.field')
 @include('forms.edit')
@@ -45,6 +55,24 @@
 	}*/
 ?>
 <script>
+	function doAction(el, id) {
+		var action = el.options[el.selectedIndex].value;
+		console.log("doAction(el, id) id - ",id,", action - ",action,", el - ",el);
+		if (action == "edit") {
+			$(".modalEditForm").modal();
+			launchUpdateFormModal(id, true);
+		} else if (action == "preview") {
+			$(".modalPreviewForm").modal();
+			launchPreviewFormModal(id);
+		} else if (action == "manage") {
+			console.log(this);
+			//return redirect("list-formsdata");
+			$("#formId").val(id);
+			$("#listForm").submit();
+		}
+		el.selectedIndex = 0;
+	}
+
     $(document).ready(function() {
 
       $('#formsTable').DataTable({
@@ -52,7 +80,15 @@
                 "serverSide": true,
                 "dom": 'frtip',
                 "order" :[[0,"desc"]],
-                "ajax": "{!! url('/forms-list/')!!}",
+                ajax: {
+									url: "{!! url('/forms-list/')!!}"
+									, complete: function() {
+										
+									}
+									, data: function(d) {
+
+									}
+				        },
                 "columns": [
 
                     {data: 'id', name: 'forms.id'},

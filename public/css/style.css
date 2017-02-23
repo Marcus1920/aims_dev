@@ -2370,3 +2370,41 @@ a.sort_desc {
 	border: 1px solid green;
 	white-space: nowrap !important;
 }*/
+/*
+.tooltip {
+	background-color: none;
+	
+}
+.tooltip-inner {
+	background-color: rgba(128,128,128, 0.5);
+	margin:0.25em 0.5em;
+}*/
+
+.tooltip {
+	max-width: 150px;
+  min-width: 50px;
+}
+.tooltip .tooltip-inner {
+	border: 3px solid #058933;
+	border-radius: 10px;
+	color: #D61415;
+    max-width: 150px;
+    /*min-height: 50px;*/
+    min-width: 50px;
+    padding: 3px 8px;
+    text-align: left;
+    white-space: normal;
+}
+
+.tooltip-inner {
+	background-color: #FDE008 !important;
+}
+.tooltip.top .tooltip-arrow {
+	border-top-color: #058933 !important;
+}
+.tooltip.bottom .tooltip-arrow {
+	border-bottom-color: #058933 !important;
+}
+.tooltip.left .tooltip-arrow {
+	border-left-color: #058933 !important;
+}

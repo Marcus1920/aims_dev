@@ -1080,4 +1080,21 @@ Route::post('updateForm', ['middleware' => 'resetLastActive', 'uses' => 'FormsCo
 
 Route::get('forms/database/tables', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getTables']);
 Route::get('forms/database/tables/{name}', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getTable']);
-Route::get('forms/database/data/{table}', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getData']);
+Route::get('forms/database/tables/{name}/{form_id}', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getTable']);
+Route::get('forms/database/data/{form_id}', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getData']);
+/*Route::get('list-formsdata', ['middleware' => 'resetLastActive', function () {
+    return view('forms.listdata');
+}]);*/
+//Route::get('list-formsdata', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@index']);
+//Route::get('formsdata-list', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@index']);
+Route::any('list-formsdata/{form_id}', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@anyId'])->where('form_id', '[0-9]+');
+Route::controller('list-formsdata', 'FormsDataController', array('getData'=>'formsdata.data','anyIndex'=>"list-formsdata"));
+Route::get('forms/data/{id}', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@edit']);
+Route::post('updateFormData', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@update']);
+
+//Route::controller('formsdata', 'FormsDataController');
+
+Route::controller('datatables', 'DataTablesController', [
+    'anyData'  => 'datatables.data',
+    'getIndex' => 'datatables',
+]);

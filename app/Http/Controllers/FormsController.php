@@ -24,7 +24,16 @@ class FormsController extends Controller {
 			//$forms = \DB::table("forms")->leftJoin("forms_fields", "forms.id", "=", "forms_fields.form_id")->select(\DB::raw("forms.`id`,forms.`name`, forms.`purpose`,COUNT(forms_fields.id) as cntFields"))->groupBy("forms.id");
 		//\Session::flash('success', "SQL - ".$forms->toSql());
 		return \Datatables::of($forms)
-			->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}}, true);" data-target=".modalEditForm">Edit</a> <a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchPreviewFormModal({{$id}});" data-target=".modalPreviewForm">Preview</a>')
+			//->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}}, true);" data-target=".modalEditForm">Edit</a> <a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchPreviewFormModal({{$id}});" data-target=".modalPreviewForm">Preview</a>')
+			->addColumn('actions','
+	      <div class="col-md-2">
+	          <select onchange="doAction(this,{{$id}});" class="form-control input-sm selFormOptions">
+	              <option value="0">Select</option>
+	              <option value="edit">Edit</option>
+	              <option value="preview">Preview</option>
+	              <option value="manage">Manage Data</option>
+	          </select>
+	      </div>')
       	->make(true);
 	}
 	

@@ -17,6 +17,8 @@
   static $called = 0;
   $index = "";
   if (isset($i)) $index = $i;
+  //echo "\$caled - {$called}, \$index - {$index}";
+//if (isset($field)) die("<pre>".print_r($field,1)."</pre>");
 ?>
 <div class="fieldTemplate clearfix" style="border-top: 2px dashed green; display: none; margin: 5px 20px; padding: 15px 0">
 	<div class="wSort">
@@ -31,7 +33,8 @@
 		</div>
 	<!--<hr style="width: 75%"><br>-->
 	<div>
-		{!! Form::hidden('field['.$index.'][id]',isset($field) ? $field['id'] : NULL,['class' => 'form-control input-sm','id' => 'fieldId']) !!}
+		{!! Form::text('field['.$index.'][id]',isset($field) ? $field['id'] : NULL,['class' => 'form-control input-sm','id' => 'fieldId']) !!}
+		{!! Form::text('field['.$index.'][order]',isset($field) ? $field['order'] : NULL,['class' => 'form-control input-sm','id' => 'fieldOrder']) !!}
 		<div style="" class="col-md-6">
 			<div style="clear: both;" class="form-group">
 				{!! Form::label('fieldName', 'Name', array('class' => 'col-md-3 control-label')) !!}
@@ -71,7 +74,7 @@
 					</div>
 					<div>
 						{!! Form::label('selTypeBool', 'Type', array('class' => 'col-md-4 control-label')) !!}
-						{!! Form::select('field[][opts][boolean][type]',$types['boolean'], "",['class' => 'form-control select-sm','id' => 'selTypeBool', 'style'=>"width: 10em"]) !!}
+						{!! Form::select('field[][opts][boolean][type]',$types['boolean'], "checkbox",['class' => 'form-control select-sm','id' => 'selTypeBool', 'style'=>"width: 10em"]) !!}
 					</div>
 				</div>
 				<div class="optsChoice" style="clear: both; margin-left: 1em;">
