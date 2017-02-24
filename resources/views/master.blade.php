@@ -238,6 +238,7 @@
                              @endif
                              
                              <li><a href="{{ url('list-forms') }}"><span class="badge badge-r">{{ count($noForms,0) }}</span>Forms</a></li>
+                             <li><a href="{{ url('list-formsdata') }}"><span class="badge badge-r">{{ count($noForms,0) }}</span>Forms Data</a></li>
 
                         </ul>
                     </li>
@@ -525,15 +526,11 @@
                 }
         }
         </script>
-<?php
-	//ini_set("memory_limit", "256M");
-	//die(phpinfo());
-?>
-        @include('functions.caseModal')
-        @yield('footer')
-        @include('version')
-        @include('partials.refresh')
-        @include('partials.timeout')
+@include('functions.caseModal')
+@yield('footer')
+@include('version')
+@include('partials.refresh')
+@include('partials.timeout')
 
     </body>
 </html>
