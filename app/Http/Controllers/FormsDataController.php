@@ -5,28 +5,37 @@
 	use App\Form;
 	use App\FormField;
 	use App\FormsData;
+	use App\Http\Requests\FormsRequest;
 	
+	use Illuminate\Http\Request;
 	use Illuminate\Support\Facades\Input;
 	use Illuminate\Support\Facades\DB as DB;
 	
-	use yajra\Datatables\Datatables;
+	//use yajra\Datatables\Datatables;
 	
   class FormsDataController extends Controller {
   	public $forms = array();
   	
-  	public function __construct() {
+  	/*public function __construct() {
 			
-  	}
+  	}*/
   	
   	public function getData($req = array()) {
   		$txtDebug = "FormsDataController->getData(\$req = array()) \$req - ".print_r($req, 1).", \n\$_REQUEST - ".print_r($_REQUEST,1);
   		$search = $_REQUEST['search']['value'];
-  		$query = FormsData::select("forms_data.id", "form_id", "forms.name",DB::raw("CONCAT(forms.name,' (', form_id, ')') AS title"),"forms_data.created_at", "forms_data.data")->leftJoin("forms", "forms.id", "=", "forms_data.form_id");
+  		$query = FormsData::select(
+  			"forms_data.id", 
+  			"form_id", 
+  			"forms.name",
+  			DB::raw("CONCAT(forms.name,' (', form_id, ')') AS title"),
+  			DB::raw("DATE_FORMAT(forms_data.created_at, '%a, %d %b %Y<br>at %H:%i') AS created_att"), 
+  			"forms_data.data"
+  			)->leftJoin("forms", "forms.id", "=", "forms_data.form_id");
   		//$query = FormsData::select(["forms_data.id", "form_id", "forms.name",DB::raw("forms.name AS title"),"forms_data.created_at", "forms_data.data"])->leftJoin("forms", "forms.id", "=", "forms_data.form_id");
   		//$query = $query->where(implode(", ", $req));
   		$txtDebug .= "\n  \$query - {$query->toSql()}";
   		$data = $query->get();
-  		$txtDebug .= "\n  \$data - ".print_r($data->toArray(), 1);
+  		//$txtDebug .= "\n  \$data - ".print_r($data->toArray(), 1);
 			//die("<pre>{$txtDebug}</pre>");
 			/*return \Datatables::of($query)
 				->addColumn('tits','WWWW')
@@ -78,12 +87,29 @@
 			return [$form, $fields, $data];
   	}
   	
-  	public function update(FormsRequest $request) {
-  		$txtDebug = "FormsDataController->update(FormsRequest \$request) \$request - ".print_r($request, 1);
-  		die("<pre>{$txtDebug}</pre>");
-  		return redirect()->back()->withInput($request->all());
+  	/**
+  	* put your comment there...
+  	* 
+  	* @param FormsRequest $request
+  	* 
+  	* @return Response
+  	*/
+  	public function update($request = null) {
+  		$input = Input::all();
+  		$txtDebug = "FormsDataController->update(FormsRequest \$request) \$request - ".print_r($request, 1).", \$input - ".print_r($input,1);
+  		$id = $input['id'];
+  		$formdata = FormsData::where('id',$id)->first();//->toArray();
+  		$data = json_encode($input['data']);
+  		$formdata->data = $data;
+  		$txtDebug .= "\n  \$formdata - ".print_r($formdata,1);
+  		$txtDebug .= "\n  \$data - ".print_r($data,1);
+  		//die("<pre>{$txtDebug}</pre>");
+  		if ($formdata->save()) \Session::flash('success', 'well done! Form Data has been successfully updated!');
+  		else \Session::flash('failure', 'Whoops! Error updating Form Data');
+  		
+  		return redirect()->back()->withInput($input);
 		}
-  	
+		
   	public function anyFormId($form_id = -1) {
   		//echo "FormsDataController->anyId(\$form_id = -1) \$form_id - {$form_id}";
 			return self::anyIndex($form_id);

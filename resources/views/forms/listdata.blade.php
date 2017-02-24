@@ -25,13 +25,19 @@
         {{ Session::get('success') }}
         <i class="icon">&#61845;</i>
       </div>
+    @elseif(Session::has('failure'))
+      <div class="alert alert-warning alert-icon">
+         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        {{ Session::get('failure') }}
+        <i class="icon">&#61845;</i>
+      </div>
     @endif
 		<table class="table tile table-striped" id="formsTable">
 			<thead>
 				<tr>
 					<th style="width: 3em;">id</th>
-					<th style="width: 10em;">Created</th>
-					<th style="width: 30%;">Title</th>
+					<th style="">Created</th>
+					<th style="width: 25%;">Form</th>
 					<th style="width: 40%;">Data</th>
 					<th>Actions</th>
 				</tr>
@@ -65,7 +71,7 @@ function launchFormModal(id, edit) {
 	console.log("launchFormModal(id, edit) id - ",id,", edit - ",edit);
 	editForm = edit;
 	var symbols = { AUD: "$", BRL: "R$", CAD: "$", CNY: "¥", EUR: "€", HKD: "$", INR: "?", JPY: "¥", MXN: "$", NZD: "$", NOK: "kr", GBP: "&pound;", RUB: "?",SGD: "$", KRW: "?", SEK: "kr", CHF: "Fr", TRY: "?", USD: "$", ZAR: "R" }
-	
+	$(".modal-body #formDataId").val(id);
 	$.ajax({
 		type    :"GET",
 		dataType:"json",
@@ -104,12 +110,14 @@ function launchFormModal(id, edit) {
 					if (data[1][i].type != "choice" && data[1][i].type != "rel" && opts.type != "select") input = document.createElement("input");
 					else input = document.createElement("select");
 					input.className = "form-control input-sm";
-					input.name = data[1][i].name;
+					input.name = "data["+data[1][i].name+"]";
 					input.id = data[1][i].name;
 					///input.required = true;
 					input.style.display = "inline-block";
 					input.style.width = "initial";
 					input.type = "text";
+					var val = data[2][data[1][i].name];
+					input.value = val;
 					$(lbl).attr("for", input.id);
 					$(input).attr("data-opts", data[1][i].options);
 					
@@ -132,8 +140,14 @@ function launchFormModal(id, edit) {
 							input.className = "form-control select-sm";
 							input.id = data[1][i].name;
 							input.style.width = "5em";
-							if (opts['false']) $(input).append('<option value="0">'+opts['false']+'</option>');
-							if (opts['true']) $(input).append('<option value="1">'+opts['true']+'</option>');
+							if (opts['false']) {
+								if (val == 0) $(input).append('<option selected value="0">'+opts['false']+'</option>');
+								else $(input).append('<option value="0">'+opts['false']+'</option>');
+							}
+							if (opts['true']) {
+								if (val == 1) $(input).append('<option selected value="1">'+opts['true']+'</option>');
+								else $(input).append('<option value="1">'+opts['true']+'</option>');
+							}
 							
 							$(div).append(input);
 						}
@@ -142,13 +156,24 @@ function launchFormModal(id, edit) {
 						input.id = data[1][i].name;
 						if (opts.multi == 1) {
 							input.multiple = true;
-						}
+							input.name += "[]";
+						} 
 						if (opts.options && opts.options.length > 0) {
 							//if (opts.multi) sel.size = opts.options.length;
 							for (var oi = 0; oi < opts.options.length; oi++) {
-								$(input).append('<option value="'+opts.options[oi]+'">'+opts.options[oi]+'</option>');
+								if (opts.multi == 1) {
+									var sel = "";
+									for (var vi = 0; vi < val.length; vi++) {
+										if (val[vi] == opts.options[oi]) sel = "selected";
+									}
+									$(input).append('<option '+sel+' value="'+opts.options[oi]+'">'+opts.options[oi]+'</option>');
+								} else {
+								if (val == opts.options[oi]) $(input).append('<option selected value="'+opts.options[oi]+'">'+opts.options[oi]+'</option>');
+								else $(input).append('<option value="'+opts.options[oi]+'">'+opts.options[oi]+'</option>');
+								}
 							}
 						}
+						
 						$(div).append(input);
 					} else if (data[1][i].type == "currency") {
 						var div2 = document.createElement("div");
@@ -188,7 +213,7 @@ function launchFormModal(id, edit) {
 						if ((opts.decimals) == 0) $(input).attr("data-rule-digits", "true");
 						else $(input).attr("data-rule-number", "true");
 					} else if (data[1][i].type == "text" && opts.lines && opts.lines > 1) {
-						$(div).append('<textarea class="form-control" id="'+data[1][i].name+'" rows="'+opts.lines+'"></textarea>');
+						$(div).append('<textarea class="form-control" id="'+data[1][i].name+'" name="data['+data[1][i].name+']" rows="'+opts.lines+'">'+val+'</textarea>');
 					} else if (data[1][i].type == "rel") {
 						input.className = "form-control select-sm";
 						input.id = data[1][i].name;
@@ -262,9 +287,9 @@ function launchFormModal(id, edit) {
 			, rules: theRules
 		});
 			
-			$('input').rules("add", {
+			/*$('input').rules("add", {
 				required: true, currency: true
-			});
+			});*/
 			
 			
 		}
@@ -301,21 +326,20 @@ $(function() {
         ajax: {
 					url: '{!! route("formsdata.data") !!}'
 					, data: function(d) {
-						d.fuck = "you";
 					}
         },
         columns: [
             { data: 'id', name: 'forms_data.id' },
-            { data: 'created_at' },
+            { data: 'created_att', searchable: true, className:"created_at" },
             { data: 'name', searchable: true, search: "name" },
-            { data: 'data', name: 'data' },
+            { data: 'data', name: 'data', className: "data" },
             { data: 'actions',  name: 'actions' }
             //{ data: 'updated_at', name: 'updated_at' }
         ]
 				, initComplete: function () {
 					console.log("initComplete");
 					this.api().columns().every(function () {
-						console.log("  every()");
+						console.log("  every() this - ",this);
 						var column = this;
 						var input = document.createElement("input");
 						$(input).appendTo($(column.footer()))
@@ -325,7 +349,7 @@ $(function() {
 					});
 				}
         , "aoColumnDefs": [
-					{ "bSearchable": true, "aTargets": [ 1 ] },
+					//{ "bSearchable": true, "aTargets": [ 1 ] },
 					{ "bSortable": false, "aTargets": [  ] }
 				]
     });

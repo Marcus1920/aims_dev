@@ -11,13 +11,15 @@
                 <h4 class="modal-title"></h4>
             </div>
             <div class="modal-body">
-            {!! Form::open(['url' => 'updateFormData', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"dataForm", 'style'=>"height: 100%", 'novalidate_'=>"" ]) !!}
-            {!! Form::text('formId',NULL,['id' => 'formId']) !!}
-            {!! Form::text('id',Auth::user()->id) !!}
+            {!! Form::open(['url' => 'updateFormData', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"dataForm", 'style'=>"height: 100%" ]) !!}
+            {!! Form::text('formId',NULL,['class' => 'form-control input-sm','id' => 'formId']) !!}
+            {!! Form::text('id',NULL, ['class' => 'form-control input-sm', 'id'=>"formDataId"]) !!}
             	<div class="fields" style="height: 100%; overflow-x: hidden; overflow-y: auto;"></div>
             	<div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
-                    <button type="submit" id='submitDataForm' type="button" class="btn btn-sm">Save Changes</button>
+                    <!--<button type="submit" id='submitDataForm' type="button" class="btn btn-sm">Save Changes</button>-->
+                    <button id='submitDataForm' class="btn btn-sm">Save Changes</button>
+                    <!--<input type="submit" id='submitDataForm' value="Save Changes" class="btn btn-sm">-->
                 </div>
             	</div>            	
             </div>
@@ -68,15 +70,15 @@ function checkForm() {
 $(document).ready(function() {
 	$("#submitDataForm").on("click", function (ev) { 
 		console.log("#submitDataForm.click(ev) this - ", this);
-		//ev.preventDefault();
-		$("#dataForm").valid();
+		ev.preventDefault();
+		//$("#dataForm").valid();
 		//if (checkForm()) 
 		$("#dataForm").submit();
-		$("#dataForm").validate({
+		/*$("#dataForm").validate({
 				submitHandler: function(form) {
 					console.log("submitHandler(form) form - ", form);
 				}
-			});
+			});*/
 			//$("#testCustomForm").submit();
 	});
 	

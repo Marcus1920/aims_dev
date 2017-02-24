@@ -23,4 +23,10 @@ class FormsData extends Eloquent {
 		//die();
 		return parent::query();
 	}
+	
+	public function save(array $options = array()) {
+		$saved = false;
+		$saved = parent::save($options);
+		return $saved;
+	}
 }
