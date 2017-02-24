@@ -305,6 +305,7 @@ function selectForm(el) {
 	}
 	console.log("selectForm(el) form_id - ",form_id,", form_name - ",form_name,", el - ", el);
 	console.log("iii - is ", Object.prototype.isPrototypeOf(el));
+	form_name = form_name.replace(/ \(\d+\)/, "");
 	if (form_id != -1) $("input[type='search']").val(form_name);
 	//else $("input[type='search']").val("");
 	$("input[type='search']").blur();

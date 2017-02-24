@@ -2408,3 +2408,7 @@ a.sort_desc {
 .tooltip.left .tooltip-arrow {
 	border-left-color: #058933 !important;
 }
+
+td.created_at {
+	white-space: nowrap;
+}

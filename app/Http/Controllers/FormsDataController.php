@@ -118,10 +118,14 @@
   	public function anyIndex($form_id = -1) {
 			$results = DB::table("forms")->select("id","name", "slug")->get();
 			$forms = array('-1'=>"Select a form");
-			foreach ($results AS $res) $forms[$res->id] = $res->name;
+			foreach ($results AS $res) {
+				$cnt = DB::table("forms_data")->where("form_id",$res->id)->count();
+				//echo "\$cnt - <pre>".print_r($cnt,1)."</pre>";
+				$forms[$res->id] = $res->name." ({$cnt})";
+			}
 			if ($form_id == -1 && Input::get("form_id") != -1) $form_id = Input::get("form_id");
-			//echo "FormsDataController->anyIndex(\$form_id = -1) \$form_id - {$form_id}";
-			//die("<pre>".print_r(Input::all(),1)."</pre>");
+			/*echo "FormsDataController->anyIndex(\$form_id = -1) \$form_id - {$form_id}";
+			die("<pre>".print_r(Input::all(),1)."</pre>");*/
 			return view("forms.listdata", ['forms'=>$forms, 'form_id'=>$form_id]);
   	}
   	
