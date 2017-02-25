@@ -82,7 +82,7 @@
 			$txtDebug .= "\n  \$formdata - ".print_r($formdata, 1)."";
 			//die("<pre>{$txtDebug}</pre>");
 			$form = Form::where('id',$formdata['form_id'])->first()->toArray();
-			$fields = FormField::where('form_id',$formdata['form_id'])->get()->toArray();
+			$fields = FormField::where('form_id',$formdata['form_id'])->orderBy("order")->get()->toArray();
 			$formdata['form'] = $form;
 			$data = json_decode($formdata['data']);
 			$txtDebug .= "\n  \$data - ".print_r($data, 1)."";

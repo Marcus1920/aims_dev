@@ -137,13 +137,20 @@ function launchFormModal(id, form_id) {
 					if (data[1][i].type == "boolean") {
 						if (opts.type == "") opts.type = "checkbox";
 						if (opts.type == "checkbox") {
-							$(div).append('<input id="'+data[1][i].name+'" name="'+data[1][i].name+'" style="opacity: 1" type="checkbox" value="1">');
+							var checked = "";
+							if (val == 1) checked = "checked";
+							$(div).append('<input id="'+data[1][i].name+'" name="'+data[1][i].name+'" style="opacity: 1" type="checkbox" value="1" '+checked+'>');
 						} else if (opts.type == "radio") {
 							var wrapper = document.createElement("div");
-							if (opts['false']) $(wrapper).append('<label style="">'+opts['false']+'<input name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="0"></label>');
+							var labels = ["False", "True"];
+							var checked = ["", ""];
+							checked[val] = "checked";
+							if (opts['false']) labels[0] = opts['false'];
+							$(wrapper).append('<label style="">'+labels[0]+'<input name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="0" '+checked[0]+'></label>');
 							///if (opts['false']) $(wrapper).append('<label style="">A <input id="fffA" name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="0"></label>');
 							$(wrapper).append("&nbsp;&nbsp;&nbsp;");
-							if (opts['true']) $(wrapper).append('<label>'+opts['true']+'<input name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="1"></label>');
+							if (opts['true']) labels[1] = opts['true'];
+							$(wrapper).append('<label>'+labels[1]+'<input name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="1" '+checked[1]+'></label>');
 							///if (opts['true']) $(wrapper).append('<label style="">B <input id="fffB" name="'+data[1][i].name+'" style="opacity: 1" type="radio" value="1"></label>');
 							$(div).append(wrapper);
 							

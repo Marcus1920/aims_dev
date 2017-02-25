@@ -35,7 +35,7 @@ class Form extends Eloquent {
 		if (count($fields) > 0) {
 			foreach ($fields AS $i=>$field) {
 				$field['form_id'] = $form_id;
-				$field['order'] = $i;
+				$field['order'] = $field['order'];
 				$field['table'] = $table;
 				/*$fff->validate($field, [
 					'name'=>"required"

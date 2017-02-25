@@ -33,8 +33,8 @@
 		</div>
 	<!--<hr style="width: 75%"><br>-->
 	<div>
-		{!! Form::text('field['.$index.'][id]',isset($field) ? $field['id'] : NULL,['class' => 'form-control input-sm','id' => 'fieldId']) !!}
-		{!! Form::text('field['.$index.'][order]',isset($field) ? $field['order'] : NULL,['class' => 'form-control input-sm','id' => 'fieldOrder']) !!}
+		{!! Form::hidden('field['.$index.'][id]',isset($field) ? $field['id'] : NULL,['class' => 'form-control input-sm','id' => 'fieldId']) !!}
+		{!! Form::hidden('field['.$index.'][order]',isset($field) ? $field['order'] : NULL,['class' => 'form-control input-sm','id' => 'fieldOrder']) !!}
 		<div style="" class="col-md-6">
 			<div style="clear: both;" class="form-group">
 				{!! Form::label('fieldName', 'Name', array('class' => 'col-md-3 control-label')) !!}
