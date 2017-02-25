@@ -107,21 +107,21 @@
 					<div>
 						{!! Form::label('chkDateTimeSubA', 'Date & Time', array('class' => 'col-md-4 control-label', 'style'=>"clear: both; float: left;")) !!}
 						<div style="padding-top: 7px;">
-						{!! Form::radio('field[][opts][datetime][subtype]',"datetime", false,['class' => 'form-control input-sm','id'=>'chkDateTimeSubA', 'style'=>"opacity: 1; width: 4em !important", 'maxlength'=>"3"]) !!}
+						{!! Form::radio('field[][opts][datetime][subtype]',"datetime", false,['class' => '','id'=>'chkDateTimeSubA', 'style'=>"opacity: 1; width: 4em !important", 'maxlength'=>"3"]) !!}
 						</div>
 						&nbsp;
 					</div>
 					<div>
 						{!! Form::label('chkDateTimeSubB', 'Date Only', array('class' => 'col-md-4 control-label', 'style'=>"clear: both; float: left; ")) !!}
 						<div style="padding-top: 7px;">
-						{!! Form::radio('field[][opts][datetime][subtype]',"date", false,['class' => 'form-control input-sm','id'=>'chkDateTimeSubB', 'style'=>"width: 4em !important", 'maxlength'=>"3"]) !!}
+						{!! Form::radio('field[][opts][datetime][subtype]',"date", false,['class' => '','id'=>'chkDateTimeSubB', 'style'=>"width: 4em !important", 'maxlength'=>"3"]) !!}
 						</div>
 						&nbsp;
 					</div>
 					<div>
 						{!! Form::label('chkDateTimeSubC', 'Time Only', array('class' => 'col-md-4 control-label', 'style'=>"clear: both; float: left; ")) !!}
 						<div style="padding-top: 7px;">
-						{!! Form::radio('field[][opts][datetime][subtype]',"time", false,['class' => 'form-control input-sm','id'=>'chkDateTimeSubC', 'style'=>"width: 4em !important;", 'maxlength'=>"3"]) !!}
+						{!! Form::radio('field[][opts][datetime][subtype]',"time", false,['class' => '','id'=>'chkDateTimeSubC', 'style'=>"width: 4em !important;", 'maxlength'=>"3"]) !!}
 						</div>
 						&nbsp;
 					</div>

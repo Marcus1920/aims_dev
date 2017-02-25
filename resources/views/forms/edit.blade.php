@@ -435,7 +435,7 @@ function selectTable(name, rel, template, opts, refresh, index) {
 							});
 							if (el) {
 								console.log("  Updating for ",col);
-								updateField(el, col);
+								updateField(el, col, i2);
 							} else {
 								console.log("  Adding for ",col);
 								addField(i, col);
@@ -562,6 +562,13 @@ function updateField(template, vals, index) {
 			$(template).find("[id^=txtMax]").val(vals.len);
 		}
 	}
+	$(template).find("input").iCheck("destroy");
+	$(template).find("input").iCheck({
+		    checkboxClass: 'icheckbox_minimal',
+		    radioClass: 'iradio_minimal'
+		    , increaseArea: '20%'
+	});
+	
 	var toTip = $(template).find("[title!='']");
 	toTip = $(template).find("[data-original-title!='']");
 	console.log("toTip - ",toTip);

@@ -2409,6 +2409,9 @@ a.sort_desc {
 	border-left-color: #058933 !important;
 }
 
+.dataTable td.cntData, .dataTable td.cntFields {
+	text-align: center;
+}
 td.created_at {
 	white-space: nowrap;
 }

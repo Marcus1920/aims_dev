@@ -37,7 +37,7 @@ class DatabaseController extends Controller {
 				if ($table_tmp->hasPrimaryKey()) $table['primary'] = $table_tmp->getPrimaryKey()->getColumns();
 				foreach ($table_tmp->getColumns() AS $col_tmp) {
 					$col = $col_tmp->toArray();
-					$col['label'] = ucwords(str_replace(array("_"),array(" "),$col['name']));
+					$col['label'] = ucwords( strtolower( str_replace(array("_"),array(" "),$col['name']) ) );
 					$col['type'] = $col['type']->getName();
 					$col['field_id'] = -1;
 					if ($form_id != -1) {

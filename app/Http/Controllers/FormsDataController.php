@@ -25,12 +25,13 @@
   		$search = $_REQUEST['search']['value'];
   		$query = FormsData::select(
   			"forms_data.id", 
+  			DB::raw("DATE_FORMAT(forms_data.created_at, '%a, %d %b %Y<br>at %H:%i') AS created_att"), 
   			"form_id", 
   			"forms.name",
-  			DB::raw("CONCAT(forms.name,' (', form_id, ')') AS title"),
-  			DB::raw("DATE_FORMAT(forms_data.created_at, '%a, %d %b %Y<br>at %H:%i') AS created_att"), 
-  			"forms_data.data"
+  			"forms_data.data",
+  			DB::raw("CONCAT(forms.name,' (', form_id, ')') AS title")
   			)->leftJoin("forms", "forms.id", "=", "forms_data.form_id");
+  			///if ($search) $query->havingRaw("created_att like '%{$search}%'");
   		//$query = FormsData::select(["forms_data.id", "form_id", "forms.name",DB::raw("forms.name AS title"),"forms_data.created_at", "forms_data.data"])->leftJoin("forms", "forms.id", "=", "forms_data.form_id");
   		//$query = $query->where(implode(", ", $req));
   		$txtDebug .= "\n  \$query - {$query->toSql()}";
@@ -60,9 +61,10 @@
         })*/
         $datatables = \Datatables::of($query);
         //->filterColumn('title', 'whereRaw', "CONCAT(forms.name,' (', form_id, ')') like ? ", ["$search"]);
+        ///$datatables->filterColumn("created_att", "whereRaw", "DATE_FORMAT(forms_data.created_at, '%a, %d %b %Y<br>at %H:%i') = '%34%'");
         $datatables->addColumn('actions','
 	      <div class="col-md-2">
-	          <select onchange="doAction(this,{{$id}});" class="form-control input-sm selFormOptions">
+	          <select onchange="doAction(this,{{$id}},{{$form_id}});" class="form-control input-sm selFormOptions">
 	              <option value="0">Select</option>
 	              <option value="edit">Edit</option>
 	              <option value="view">View</option>
@@ -72,9 +74,13 @@
 				return $datatables->make(true);
   	}
   	
-  	public function edit($id) {
-  		$txtDebug = "FormsDataController->edit(\$id) \$id - {$id}";
-			$formdata = FormsData::where('id',$id)->first()->toArray();
+  	public function edit($id, $form_id = -1) {
+  		$txtDebug = "FormsDataController->edit(\$id, \$form_id) \$id - {$id}, \$form_id - {$form_id}";
+  		
+			if ($id != -1) $formdata = FormsData::where('id',$id)->first()->toArray();
+			else $formdata = new FormsData(array('form_id'=>$form_id));
+			$txtDebug .= "\n  \$formdata - ".print_r($formdata, 1)."";
+			//die("<pre>{$txtDebug}</pre>");
 			$form = Form::where('id',$formdata['form_id'])->first()->toArray();
 			$fields = FormField::where('form_id',$formdata['form_id'])->get()->toArray();
 			$formdata['form'] = $form;
@@ -98,7 +104,9 @@
   		$input = Input::all();
   		$txtDebug = "FormsDataController->update(FormsRequest \$request) \$request - ".print_r($request, 1).", \$input - ".print_r($input,1);
   		$id = $input['id'];
-  		$formdata = FormsData::where('id',$id)->first();//->toArray();
+  		$form_id = $input['formId'];
+  		if ($id != -1) $formdata = FormsData::where('id',$id)->first();//->toArray();
+  		else $formdata = new FormsData(array('form_id'=>$form_id));
   		$data = json_encode($input['data']);
   		$formdata->data = $data;
   		$txtDebug .= "\n  \$formdata - ".print_r($formdata,1);

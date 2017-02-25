@@ -32,6 +32,7 @@
 					<th>name</th>
 					<th>Purpose</th>
 					<th style="width: 3em;">Fields</th>
+					<th style="width: 3em;">Items</th>
 					<th>Actions</th>
 				</tr>
 			</thead>
@@ -91,17 +92,18 @@
 				        },
                 "columns": [
 
-                    {data: 'id', name: 'forms.id'},
-                    {data: 'name', name: 'forms.name'},
-                    {data: 'purpose', name: 'forms.purpose'},
-                    {data: 'cntFields', name: 'cntFields'},
-                    {data: 'actions',  name: 'actions'}
+                    {data: "id", name: "forms.id"},
+                    {data: "name", name: "forms.name"},
+                    {data: "purpose", name: "forms.purpose"},
+                    {data: "cntFields", name: "cntFields", className: "cntFields"},
+                    {data: "cntData", name: "cntData", className: "cntData"},
+                    {data: "actions",  name: "actions"}
 
                ],
 
             "aoColumnDefs": [
                 { "bSearchable": false, "aTargets": [3, 4] },
-                { "bSortable": false, "aTargets": [4] }
+                { "bSortable": false, "aTargets": [5] }
             ]
 
          });
@@ -116,7 +118,11 @@
 			@else
 				$('#modalAddForm').modal('show');
 			@endif
+    @elseif (isset($id))
+    	$('#modalEditForm').modal('show');
+    	launchUpdateFormModal({{$id}});
     @endif
+    
 </script>
 <?php
 	//echo "_REQUEST<pre>".print_r($_REQUEST, 1)."</pre>";

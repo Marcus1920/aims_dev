@@ -18,11 +18,12 @@ class FormsController extends Controller {
 		///$forms = Form::select(array(Form::raw('1 as cntFields')));
 		//$forms = Form::select(array('forms.id','forms.name','forms.purpose','forms.slug','forms.created_at', Form::raw('1 AS cntFields')));
 		//->leftJoin("forms_fields","forms_fields.form_id", "=", "forms.id");//->leftJoinWhere("forms_fields", "forms.id", "=", "forms_fields.form_id");
-		$forms = Form::select("forms.*", DB::raw('COUNT(forms_fields.id) as cntFields'))
+		$forms = Form::select("forms.*", DB::raw('COUNT(forms_fields.id) as cntFields'), DB::raw("(select COUNT(forms_data.id) FROM forms_data WHERE forms_data.form_id = forms.id) as cntData"))
 			->leftJoin("forms_fields", "forms.id", "=", "forms_fields.form_id")
 			->groupBy("forms.id");
 			//$forms = \DB::table("forms")->leftJoin("forms_fields", "forms.id", "=", "forms_fields.form_id")->select(\DB::raw("forms.`id`,forms.`name`, forms.`purpose`,COUNT(forms_fields.id) as cntFields"))->groupBy("forms.id");
 		//\Session::flash('success', "SQL - ".$forms->toSql());
+		//echo "SQL - ".$forms->toSql();
 		return \Datatables::of($forms)
 			//->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}}, true);" data-target=".modalEditForm">Edit</a> <a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchPreviewFormModal({{$id}});" data-target=".modalPreviewForm">Preview</a>')
 			->addColumn('actions','
@@ -38,6 +39,7 @@ class FormsController extends Controller {
 	}
 	
 	public function edit($id) {
+		//echo "FormsController->edit(\$id) \$id - {$id}";
     $form = Form::where('id',$id)->first();
     $fields = FormField::select("*")->where('form_id', $id)->orderBy("order")->get();
     //echo "\$form<pre>".print_r($form, 1)."</pre>";

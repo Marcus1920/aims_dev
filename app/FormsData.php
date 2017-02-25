@@ -10,6 +10,7 @@ class FormsData extends Eloquent {
 	
 	public function __construct($attr = array()) {
 		$txtDebug = "FormsData(\$attr = array()) \$attr - ".print_r($attr,1);
+		parent::__construct($attr);
 		//die("<pre>{$txtDebug}</pre>");
 	}
 	
