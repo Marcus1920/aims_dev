@@ -8,6 +8,7 @@
 	use App\Http\Requests\FormsRequest;
 	
 	use Illuminate\Http\Request;
+	use Illuminate\Http\Response;
 	use Illuminate\Support\Facades\Input;
 	use Illuminate\Support\Facades\DB as DB;
 	
@@ -100,9 +101,12 @@
   	* 
   	* @return Response
   	*/
-  	public function update($request = null) {
-  		$input = Input::all();
-  		$txtDebug = "FormsDataController->update(FormsRequest \$request) \$request - ".print_r($request, 1).", \$input - ".print_r($input,1);
+  	public function update(Request $request) {
+  		//$input = Input::all();
+  		$input = $request;
+  		$txtDebug = "FormsDataController->update(FormsRequest \$request) \$request - ".print_r($request->all(), 1);
+  		//$txtDebug = "FormsDataController->update(FormsRequest \$request) \$request - ".print_r($request, 1).", \$input - ".print_r($input,1);
+  		//die("<pre>{$txtDebug}</pre>");
   		$id = $input['id'];
   		$form_id = $input['formId'];
   		if ($id != -1) $formdata = FormsData::where('id',$id)->first();//->toArray();
@@ -115,7 +119,7 @@
   		if ($formdata->save()) \Session::flash('success', 'well done! Form Data has been successfully updated!');
   		else \Session::flash('failure', 'Whoops! Error updating Form Data');
   		
-  		return redirect()->back()->withInput($input);
+  		return redirect()->back()->withInput();
 		}
 		
   	public function anyFormId($form_id = -1) {
@@ -134,7 +138,7 @@
 			if ($form_id == -1 && Input::get("form_id") != -1) $form_id = Input::get("form_id");
 			/*echo "FormsDataController->anyIndex(\$form_id = -1) \$form_id - {$form_id}";
 			die("<pre>".print_r(Input::all(),1)."</pre>");*/
-			return view("forms.listdata", ['forms'=>$forms, 'form_id'=>$form_id]);
+			return view("forms.data.list", ['forms'=>$forms, 'form_id'=>$form_id]);
   	}
   	
 	}

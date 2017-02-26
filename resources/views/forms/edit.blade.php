@@ -27,7 +27,7 @@
             <div class="modal-body" style="padding-bottom: 0">
             {!! Form::open(['url' => 'updateForm', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"updateCustomForm" ]) !!}
             {!! Form::hidden('formId',NULL,['id' => 'formId']) !!}
-            {!! Form::hidden('id',Auth::user()->id) !!}
+            {!! Form::hidden('id',Auth::user()->id,[]) !!}
             <div style="border: 0px solid red; float: left; width: 50%">
             	<div class="form-group">
                 {!! Form::label('name', 'Name', array('class' => 'col-md-2 control-label')) !!}
@@ -74,6 +74,15 @@
             @if (!is_null(Input::old("field")))
             	@foreach (Input::old("field") as $i=>$field)
             		@include('forms.field')
+            		<script>
+            		console.log("JSON - ", JSON);
+            			var val = JSON.parse('{!! json_encode($field) !!}');
+            			console.log("Updating old field with ", val);
+            			$(document).ready(function() {
+            				var el = $("#formFields .fieldTemplate").get({{$i}});
+										updateField(el, JSON.parse('{!! json_encode($field) !!}'), {{$i}});
+            			});
+            		</script>
             	@endforeach
             @endif
             </div>
@@ -175,12 +184,13 @@ function launchUpdateFormModal(id, clear) {
 	});	
 }
 
-function addChoice(template, val) {
+function addChoice(template, val, index) {
+	if (typeof index == "undefined") index = "";
 	var choices = $(template).find("#optsChoices");
 	var wrapper = document.createElement("div");
 	var choice = document.createElement("input");
 	choice.className = "form-control input-sm";
-	choice.name = "field[][opts][choice][options][]";
+	choice.name = "field["+index+"][opts][choice][options][]";
 	if (val) choice.value = val;
 	wrapper.appendChild(choice);
 	choices.append(wrapper);
@@ -490,6 +500,7 @@ function swapElements(obj1, obj2) {
 
 function updateField(template, vals, index) {
 	console.log("updateField(template, vals, index) vals - ",vals,",index - ", index,", template - ",template);
+	if (template == null) return;
 	if (typeof index == "undefined") {
 		index = getFieldIndex(template);
 	}
@@ -526,8 +537,10 @@ function updateField(template, vals, index) {
 			$(template).find("[id^=fieldType]").val(vals.type);
 			selectType(template, vals.type);
 		}
+		if (vals.opts && !vals.options) vals.options = vals.opts[val.type];
 		if (vals.options) {
-			var opts = JSON.parse(vals.options);
+			var opts = vals.options;
+			if (!Object.prototype.isPrototypeOf(opts)) opts = JSON.parse(opts);
 			console.log("  Updating options - ",vals.options," ("+vals.options.length+"), opts - ",opts," ("+opts.length+")");
 			for (var prop in opts) {
 				var f = $(template).find("[name$='[opts]["+vals.type+"]["+prop+"]']");
@@ -548,13 +561,13 @@ function updateField(template, vals, index) {
 				else {
 					for (var fi = 0; fi < f.length; fi++) {
 						//f.iCheck("check");
-						//if ((f[fi].type == "checkbox" || f[fi].type == "radio") && f[fi].value == opts[prop]) $(f[fi]).iCheck("check");
+						if ((f[fi].type == "checkbox" || f[fi].type == "radio") && f[fi].value == opts[prop]) $(f[fi]).iCheck("check");
 					}
 					//f.val(opts[prop]);
 				}
 				if (prop == "options" && vals.type && vals.type == "choice") {
 					var choices = opts[prop];
-					for (var ci = 0; ci < choices.length; ci++) if (choices[ci] != "") addChoice(template, choices[ci]);
+					for (var ci = 0; ci < choices.length; ci++) if (choices[ci] != "") addChoice(template, choices[ci], index);
 				}
 			}
 		}

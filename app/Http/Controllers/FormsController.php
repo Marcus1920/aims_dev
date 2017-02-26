@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB as DB;
 
 class FormsController extends Controller {
 	public function index() {
+		$txtDebug = "FormsController->index()";
+		//echo "<pre>$txtDebug<pre>";
 		//$cntFields = FormField::select("count id")->where("form_id = 2");
 		//$forms = Form::select(array('id','name','purpose','slug','created_at', Form::raw('1 AS cntFields')));
 		///$forms = Form::select(array(Form::raw('1 as cntFields')));
@@ -58,16 +60,26 @@ class FormsController extends Controller {
 		return redirect()->back()->withInput();
 	}
   
+  /**
+  * Update the form
+  * 
+  * @param Request $request
+  * @return Response
+  */
   public function update(FormsRequest $request) {
   	$form               = Form::where('id',$request['formId'])->first();
     $form->name         = $request['name'];
     $form->purpose   = $request['purpose'];
     $form->updated_by   = \Auth::user()->id;
-    $form->save();
-    $form->saveFields($request, $this);
+    //die("<pre>FormsController->update(\$request) \$request - ".print_r($request->all(),1)."</pre>");
+    $saved = $form->save();
+    $saved = $form->saveFields($request, $this);
     \Session::flash('success', 'well done! Form '.$request['name'].' has been successfully updated!');
+    //die("<pre>FormsController->update(\$request) \$request - ".print_r($request->all(),1)."</pre>");
     //\Session::flash('success', "REQUEST<pre>".print_r($request, 1)."</pre>");
-    return redirect()->back()->withInput($request->all());
+    if ($saved) return redirect("list-forms");
+    else 
+    return redirect()->back();
   }
 }
 ?>

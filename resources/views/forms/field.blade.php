@@ -18,7 +18,9 @@
   $index = "";
   if (isset($i)) $index = $i;
   //echo "\$caled - {$called}, \$index - {$index}";
-//if (isset($field)) die("<pre>".print_r($field,1)."</pre>");
+//if (isset($field) && !array_key_exists("id", $field)) die("<pre>".print_r($field,1)."</pre>");
+$fff = null;
+if (isset($field)) $fff = json_encode($field);
 ?>
 <div class="fieldTemplate clearfix" style="border-top: 2px dashed green; display: none; margin: 5px 20px; padding: 15px 0">
 	<div class="wSort">
@@ -31,6 +33,7 @@
 		<a class="btn btn-sm delete" title="Delete field">-</a>
 		<a class="btn btn-sm duplicate" title="Duplicate field">++</a>-->
 		</div>
+	<!--<div>{{$fff}}</div>-->
 	<!--<hr style="width: 75%"><br>-->
 	<div>
 		{!! Form::hidden('field['.$index.'][id]',isset($field) ? $field['id'] : NULL,['class' => 'form-control input-sm','id' => 'fieldId']) !!}
@@ -66,21 +69,21 @@
 				<div class="optsBoolean" style="clear: both; margin-left: 1em;">
 					<div class="form-group">
 						{!! Form::label('txtFalse', 'False Option', array('class' => 'col-md-4 control-label')) !!}
-						{!! Form::text('field[][opts][boolean][false]',"No",['class' => 'form-control input-sm','id'=>'txtFalse', 'style'=>"width: 10em !important", 'maxlength'=>""]) !!}
+						{!! Form::text('field['.$index.'][opts][boolean][false]',"No",['class' => 'form-control input-sm','id'=>'txtFalse', 'style'=>"width: 10em !important", 'maxlength'=>""]) !!}
 					</div>
 					<div class="form-group">
 						{!! Form::label('txtTrue', 'True Option', array('class' => 'col-md-4 control-label')) !!}
-						{!! Form::text('field[][opts][boolean][true]',"Yes",['class' => 'form-control input-sm','id'=>'txtTrue', 'style'=>"width: 10em !important", 'maxlength'=>""]) !!}
+						{!! Form::text('field['.$index.'][opts][boolean][true]',"Yes",['class' => 'form-control input-sm','id'=>'txtTrue', 'style'=>"width: 10em !important", 'maxlength'=>""]) !!}
 					</div>
 					<div>
 						{!! Form::label('selTypeBool', 'Type', array('class' => 'col-md-4 control-label')) !!}
-						{!! Form::select('field[][opts][boolean][type]',$types['boolean'], "checkbox",['class' => 'form-control select-sm','id' => 'selTypeBool', 'style'=>"width: 10em"]) !!}
+						{!! Form::select('field['.$index.'][opts][boolean][type]',$types['boolean'], "checkbox",['class' => 'form-control select-sm','id' => 'selTypeBool', 'style'=>"width: 10em"]) !!}
 					</div>
 				</div>
 				<div class="optsChoice" style="clear: both; margin-left: 1em;">
 					<div style="clear: both;">
 						{!! Form::label('chkMultichoice', 'Multiple', array('class' => 'col-md-4 control-label')) !!}
-						{!! Form::checkbox('field[][opts][choice][multi]',1, false,['id'=>'chkMultichoice', 'style'=>"padding-top: 10px;opacity: 1"]) !!}
+						{!! Form::checkbox('field['.$index.'][opts][choice][multi]',1, false,['id'=>'chkMultichoice', 'style'=>"padding-top: 10px;opacity: 1"]) !!}
 					</div>
 					<div style="clear: both;">
 						<div id="optsChoices">
@@ -92,15 +95,15 @@
 				<div class="optsCurrency" style="clear: both; margin-left: 1em;">
 					<div>
 						{!! Form::label('selTypeCurrency', 'Type', array('class' => 'col-md-4 control-label')) !!}
-						{!! Form::select('field[][opts][currency][type]',$types['currency'], "",['class' => 'form-control select-sm','id' => 'selTypeCurrency', 'style'=>"width: 10em" ]) !!}
+						{!! Form::select('field['.$index.'][opts][currency][type]',$types['currency'], "",['class' => 'form-control select-sm','id' => 'selTypeCurrency', 'style'=>"width: 10em" ]) !!}
 					</div>
 					<div>
 						{!! Form::label('txtMinCurrency', 'Min', array('class' => 'col-md-4 control-label', 'style'=>"clear: both")) !!}
-						{!! Form::text('field[][opts][currency][min]',null,['class' => 'form-control input-sm','id'=>'txtMinCurrency', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
+						{!! Form::text('field['.$index.'][opts][currency][min]',null,['class' => 'form-control input-sm','id'=>'txtMinCurrency', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
 					</div>
 					<div>
 						{!! Form::label('txtMaxCurrency', 'Max', array('class' => 'col-md-4 control-label', 'style'=>"clear: both")) !!}
-						{!! Form::text('field[][opts][currency][max]',null,['class' => 'form-control input-sm','id'=>'txtMaxCurrency', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
+						{!! Form::text('field['.$index.'][opts][currency][max]',null,['class' => 'form-control input-sm','id'=>'txtMaxCurrency', 'style'=>"width: 5em !important", 'maxlength'=>"-1"]) !!}
 					</div>
 				</div>
 				<div class="optsDatetime" style="clear: both; margin-left: 1em;">

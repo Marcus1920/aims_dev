@@ -113,18 +113,14 @@
 			@if (Request::old("formId"))
 				//alert("Launching update form for id <?php echo Request::old("formId"); ?>");
 				$('#modalEditForm').modal('show');
-				//launchUpdateFormModal(<?php echo Request::old("formId"); ?>);
+				//launchUpdateFormModal(<?php echo Request::old("formId"); ?>, false);
 				updateFields();
 			@else
 				$('#modalAddForm').modal('show');
 			@endif
-    @elseif (isset($id))
+		@elseif (isset($id))
     	$('#modalEditForm').modal('show');
     	launchUpdateFormModal({{$id}});
     @endif
-    
 </script>
-<?php
-	//echo "_REQUEST<pre>".print_r($_REQUEST, 1)."</pre>";
-?>
 @endsection
