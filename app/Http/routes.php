@@ -1070,7 +1070,7 @@ Route::post('session/ajaxCheck', ['uses' => 'SessionController@ajaxCheck', 'as' 
 Route::post('resetSession', ['uses' => 'SessionController@resetSession', 'as' => 'resetSession']);
 
 
-Route::get('list-forms/{id}', ['middleware' => 'resetLastActive', function ($id) {
+Route::get('list-forms/{id?}', ['middleware' => 'resetLastActive', function ($id = null) {
     return view('forms.list', compact('id', $id));
 }]);
 Route::get('list-forms', ['middleware' => 'resetLastActive', function () {
@@ -1090,14 +1090,14 @@ Route::get('forms/database/data/{form_id}', ['middleware' => 'resetLastActive', 
 }]);*/
 //Route::get('list-formsdata', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@index']);
 //Route::get('formsdata-list', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@index']);
-Route::any('list-formsdata/{form_id}', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@anyId'])->where('form_id', '[0-9]+');
-Route::controller('list-formsdata', 'FormsDataController', array('getData'=>'formsdata.data','anyIndex'=>"list-formsdata"));
+Route::any('list-formsdata/{form_id}', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@anyFormId'])->where('form_id', '[0-9]+');
+Route::controller('list-formsdata', 'FormsDataController', array('getData'=>'formsdata.data','anyIndexx'=>"list-formss"));
 Route::get('forms/data/{id}/{form_id?}', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@edit']);
 Route::post('updateFormData', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@update']);
 
 //Route::controller('formsdata', 'FormsDataController');
 
-Route::controller('datatables', 'DataTablesController', [
+/*Route::controller('datatables', 'DataTablesController', [
     'anyData'  => 'datatables.data',
     'getIndex' => 'datatables',
-]);
+]);*/
