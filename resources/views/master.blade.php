@@ -526,9 +526,16 @@
                 }
         }
         </script>
+@push('scripts')
+<!--<script type="" src="{{url('js/functions.forms.js')}}"></script>-->
+@endpush
+
 @include('functions.caseModal')
+@stack("scripts")
 @yield('footer')
-@include('version')
+<div style="margin-top: -20px; margin-left: 5px; position: relative;">@include('version')</div>
+@include('partials.forms')
+@include('forms.data.form')
 @include('partials.refresh')
 @include('partials.timeout')
 

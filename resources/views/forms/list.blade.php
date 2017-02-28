@@ -107,6 +107,9 @@
             ]
 
          });
+         
+         //console.log("um - ", );
+         
 		});
 		
 		@if (count($errors) > 0)

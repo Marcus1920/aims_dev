@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 
-class FormsRequest extends Request {
+class FormsDataRequest extends Request {
   /**
    * Determine if the user is authorized to make this request.
    *
@@ -22,9 +22,9 @@ class FormsRequest extends Request {
   public function rules() {
   	//echo "<pre>".print_r($_REQUEST, 1)."</pre>";
   	$rules = [
-			'name'     =>'required|unique:forms,name,'.(isset($_REQUEST['formId'])? $_REQUEST['formId'] :"NULL")
+			////'name'     =>'required|unique:forms,name,'.(isset($_REQUEST['formId'])? $_REQUEST['formId'] :"NULL")
 			//'field.name' =>'required'
-			, 'purpose'=>'required'
+			
     ];
     if ($this->request->get("field")) {
     	//echo "<pre>".print_r($this->request->get("field"), 1)."</pre>";

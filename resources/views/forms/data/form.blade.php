@@ -13,7 +13,7 @@
             <div class="modal-body">
             {!! Form::open(['url' => 'updateFormData', 'method' => 'post', 'class' => 'form-horizontal', 'id'=>"dataForm", 'style'=>"height: 100%" ]) !!}
             {!! Form::hidden('formId',NULL,['class' => 'form-control input-sm','id' => 'formId']) !!}
-            {!! Form::hidden('id',NULL, ['class' => 'form-control input-sm', 'id'=>"formDataId"]) !!}
+            {!! Form::hidden('data[id]',NULL, ['class' => 'form-control input-sm', 'id'=>"formDataId"]) !!}
             	<div class="fields" style="height: 100%; overflow-x: hidden; overflow-y: auto;"></div>
             	<div class="form-group">
                 <div class="col-md-offset-2 col-md-10">
@@ -68,19 +68,19 @@ function checkForm() {
 }
 
 $(document).ready(function() {
-	$("#submitDataForm").on("click", function (ev) { 
+	/*$("#submitDataForm").on("click", function (ev) {
 		console.log("#submitDataForm.click(ev) this - ", this);
 		ev.preventDefault();
 		//$("#dataForm").valid();
 		//if (checkForm()) 
 		$("#dataForm").submit();
-		/*$("#dataForm").validate({
-				submitHandler: function(form) {
-					console.log("submitHandler(form) form - ", form);
-				}
-			});*/
+		///$("#dataForm").validate({
+		///		submitHandler: function(form) {
+		///			console.log("submitHandler(form) form - ", form);
+		///		}
+		///	});
 			//$("#testCustomForm").submit();
-	});
+	});*/
 	
 	//$("#testCustomForm").validate({
 		/*submitHandler: function(form) {

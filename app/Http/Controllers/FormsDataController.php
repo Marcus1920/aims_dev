@@ -5,7 +5,7 @@
 	use App\Form;
 	use App\FormField;
 	use App\FormsData;
-	use App\Http\Requests\FormsRequest;
+	use App\Http\Requests\FormsDataRequest;
 	
 	use Illuminate\Http\Request;
 	use Illuminate\Http\Response;
@@ -89,7 +89,10 @@
 			$txtDebug .= "\n  \$data - ".print_r($data, 1)."";
 			$txtDebug .= "\n  \$formdata - ".print_r($formdata, 1)."";
 			$txtDebug .= "\n  \$fields - ".print_r($fields, 1)."";
-			
+			$fff = array(
+				'one'=>1
+				, 'two'=>"2"
+			);
 			//die("<pre>{$txtDebug}</pre>");
 			return [$form, $fields, $data];
   	}
@@ -101,25 +104,41 @@
   	* 
   	* @return Response
   	*/
-  	public function update(Request $request) {
+  	public function update(FormsDataRequest $request) {
   		//$input = Input::all();
-  		$input = $request;
-  		$txtDebug = "FormsDataController->update(FormsRequest \$request) \$request - ".print_r($request->all(), 1);
+  		$input = $request->all();
+  		//if (array_key_exists("data", $input)) $input = $input['data'];
+  		$txtDebug = "FormsDataController->update(FormsDataRequest \$request) \$request - ".print_r($request->all(), 1);
+  		$txtDebug .= ", \$input - ".print_r($input, 1);
   		//$txtDebug = "FormsDataController->update(FormsRequest \$request) \$request - ".print_r($request, 1).", \$input - ".print_r($input,1);
   		//die("<pre>{$txtDebug}</pre>");
   		$id = $input['id'];
   		$form_id = $input['formId'];
+  		$fields = FormField::where('form_id',$form_id)->orderBy("order")->get()->toArray();
+  		$table = "";
+  		foreach ($fields AS $fi=>$f) if ($f['table']) $table = $f['table'];
+  		$txtDebug .= "\n  \$table - {$table}";
+  		//if ($table != "") $formdata->table = $table;
   		if ($id != -1) $formdata = FormsData::where('id',$id)->first();//->toArray();
-  		else $formdata = new FormsData(array('form_id'=>$form_id));
+  		else $formdata = new FormsData(array('form_id'=>$form_id, 'table'=>$table));
   		$data = json_encode($input['data']);
   		$formdata->data = $data;
-  		$txtDebug .= "\n  \$formdata - ".print_r($formdata,1);
+  		$form = Form::where('id',$form_id)->first();//->toArray();
+  		
   		$txtDebug .= "\n  \$data - ".print_r($data,1);
+  		$txtDebug .= "\n  \$formdata - ".print_r($formdata,1);
+  		//$txtDebug .= "\n  \$form - ".print_r($form,1);
+  		$txtDebug .= "\n  \$fields - ".print_r($fields, 1)."";
+  		
+  		
+  		
   		//die("<pre>{$txtDebug}</pre>");
-  		if ($formdata->save()) \Session::flash('success', 'well done! Form Data has been successfully updated!');
+  		$saved = $formdata->save();
+  		if ($saved) \Session::flash('success', 'well done! Form Data has been successfully updated!');
   		else \Session::flash('failure', 'Whoops! Error updating Form Data');
   		
-  		return redirect()->back()->withInput();
+  		///return redirect()->back()->withInput();
+  		return json_encode($saved);
 		}
 		
   	public function anyFormId($form_id = -1) {

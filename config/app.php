@@ -140,13 +140,14 @@ return [
         yajra\Datatables\DatatablesServiceProvider::class,
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
 
+				App\Providers\FormsServiceProvider::class,
+
         /*
          * Application Service Providers...
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
     ],
 
     /*
@@ -198,7 +199,7 @@ return [
         'HTML'       => 'Illuminate\Html\HtmlFacade',
         'Datatables' => yajra\Datatables\Datatables::class,
 
-
+'Forms' => App\Facades\FormsFacade::class,
 
     ],
 
