@@ -283,7 +283,7 @@
         <script src="{{ asset('/js/charts/jquery.flot.js') }}"></script> <!-- Flot Main -->
         <script src="{{ asset('/js/charts/jquery.flot.time.js') }}"></script> <!-- Flot sub -->
         <script src="{{ asset('/js/charts/jquery.flot.animator.min.js') }}"></script> <!-- Flot sub -->
-        <script src="{{ asset('/js/charts/jquery.flot.resize.min.js') }}"></script> <!-- Flot sub - for repaint when resizing the screen -->
+        <!--<script src="{{ asset('/js/charts/jquery.flot.resize.min.js') }}"></script>--> <!-- Flot sub - for repaint when resizing the screen -->
         <script src="{{ asset('/js/charts/jquery.flot.pie.min.js') }}"></script> <!-- Flot Pie chart -->
 
 
