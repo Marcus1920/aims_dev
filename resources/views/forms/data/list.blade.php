@@ -47,8 +47,6 @@
 	</div>
 </div>
 
-@include('forms.data.form')
-@include('forms.data.view')
 @endsection
 
 @section('footer')
