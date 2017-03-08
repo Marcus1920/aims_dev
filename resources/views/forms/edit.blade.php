@@ -172,6 +172,9 @@ function launchUpdateFormModal(id, clear) {
 					}
 				}
 			}
+			if (data[1].length == 0) {
+			  if ($("#selTable").val()) selectTable($("#selTable").val());
+      }
 			//$("#selTable").get(0).selectedIndex = 5;
 			$("a[title!=''],input[title!=''],label[title!='']").tooltip( {placement:"top", track: true } );
 			var height = 0;
@@ -440,7 +443,7 @@ function selectTable(name, rel, template, opts, refresh, index) {
 							var el = null;
 							$("#formFields .fieldTemplate").each(function(i) {
 								//if (col.name == $(this).find("[id*='fieldName']").val()) {
-								if (col.id == $(this).find("[id*='fieldId']").val() || col.name == $(this).find("[id*='fieldName']").val()) {
+								if ((col.id != -1 && col.id == $(this).find("[id*='fieldId']").val()) || col.name == $(this).find("[id*='fieldName']").val()) {
 									el = this;
 								}
 							});
@@ -462,8 +465,9 @@ function selectTable(name, rel, template, opts, refresh, index) {
 						i2++;
 					}
 				}
+				updateFieldss();
 			}
-			console.log("WtF!?");
+			console.log("WtF!? A");
 			///updateField(template, null, index);
 		}
 	});
@@ -592,7 +596,7 @@ function updateField(template, vals, index) {
 	});
 }
 
-function updateFields() {
+function updateFieldss() {
 	console.log("updateFields() this - ",this);
 	var fields = $("#formFields").find(".fieldTemplate");
 	fields.each(function(index) {

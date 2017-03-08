@@ -49,7 +49,6 @@
   </div>
 </div>
 
-2
 <script type="text/javascript">
 function closeAssigned(id) {
   console.log("closeAssigned(id) id - ",id);
@@ -471,7 +470,7 @@ function launchModalFormAssign(form_id) {
       for (var i = 0; i < users.length; i++) {
         var chkId = "chkUser"+i;
         var group = $("#modalAssignForm .modal-body .form-group").first().clone();
-        group.find(".control-label").text(users[i].name);
+        group.find(".control-label").text(users[i].name+" "+users[i].surname);
         group.find(".control-label").attr("for", chkId);
         group.find("input[type='checkbox']").get(0).id = chkId;
         group.find("input[type='checkbox']").iCheck("destroy");

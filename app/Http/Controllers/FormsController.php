@@ -127,20 +127,49 @@ class FormsController extends Controller {
 		$form = Form::where("id", $req['form_id'])->first()->toArray();
 		$txtDebug .= "\n  \$form - ".print_r($form,1);
 		$assigned = array();
-		foreach ($req['users'] AS $uid) {
-			if ($form['table'] == "") {
+		$now = date("Y-m-d H:i");
 
-			} else {
-				$dataNew = array();
-				$idNew = \DB::table($form['table'])->insertGetId($dataNew);
-				$txtDebug .= "\n    idNew - ".$idNew;
-				$dataAssigned = array('form_id'=>$form['id'], 'user_id'=>$uid, 'data_id'=>$idNew, 'due_at'=>$req['due_date']);
-				$assigned[] = \DB::table("forms_assigned")->insertGetId($dataAssigned);
+		if ($form['table'] == "") {
+
+		} else {
+			$dbTable = DbController::getTable($form['table']);
+			$primary = $dbTable['primary'][0];
+			$txtDebug .= ", \$dbTable - ".print_r($dbTable, 1);
+			foreach ($req['users'] AS $uid) {
+				$user = \App\User::where("id", $uid)->first()->toArray();
+				$txtDebug .= ", \$user - ".print_r($user, 1);
+				$queryAssigned = \DB::table("forms_assigned")->where("form_id", $form['id'])->where("user_id", $uid)->where("due_at", $req['due_date']);
+				$txtDebug .= "\n  \$queryAssigned: count - ".$queryAssigned->count().", sql - {$queryAssigned->toSql()}, bindings - ".print_r($queryAssigned->getBindings(),1).", ".print_r($queryAssigned->first(),1);
+				if ($queryAssigned->count() == 0) {
+					$dataNew = array();
+					foreach ($dbTable['columns'] AS $col) {
+						if ($col['name'] == "created_at") $dataNew['created_at'] = $now;
+						if ($col['name'] == "updated_at") $dataNew['updated_at'] = $now;
+						if ($col['name'] == "created_by") $dataNew['created_by'] = $uid;
+						if ($col['name'] == "updated_by") $dataNew['updated_by'] = $uid;
+					}
+					$idNew = \DB::table($form['table'])->insertGetId($dataNew);
+					$txtDebug .= "\n    idNew - ".$idNew;
+					$dataAssigned = array('form_id'=>$form['id'], 'user_id'=>$uid, 'data_id'=>$idNew, 'due_at'=>$req['due_date'], 'created_by'=>\Auth::user()->id, 'updated_by'=>\Auth::user()->id);
+					$assigned[] = \DB::table("forms_assigned")->insertGetId($dataAssigned);
+				} else {
+					$dataExisting = (array)$queryAssigned->first();
+					$txtDebug .= ", \$dataExisting - ".print_r($dataExisting, 1);
+					foreach ($dbTable['columns'] AS $col) {
+						if ($col['name'] == "updated_at") $dataExisting['updated_at'] = $now;
+					}
+
+					\Session::flash('failure', 'Form already assigned to '.$user['name'].' '.$user['surname'].' !');
+					\Session::flash('failure', 'Form already assigned to '.$user['name'].' '.$user['surname'].' !');
+				}
+				//die("<pre>{$txtDebug}</pre>");
+
+
 			}
 		}
 		$txtDebug .= "\n  \$assigned - ".print_r($assigned,1);
 		//die("<pre>{$txtDebug}</pre>");
-		\Session::flash('success', 'Form assigned '.count($assigned).' to users!');
+		\Session::flash('success', 'Form assigned to '.count($assigned).' users!');
 		return redirect()->back();
 
 	}

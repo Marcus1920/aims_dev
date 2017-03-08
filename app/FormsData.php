@@ -48,11 +48,12 @@ class FormsData extends Eloquent {
 			$vals = array_values($data);
 			$tosave = array($data);
 			$res = DB::table($table);
-			//die("<pre>{$txtDebug}</pre>");
+
 			foreach ($data AS $key=>$val) {
 				if (in_array($key, $dbTable['primary'])) continue;
 				$res->where($key, "=",$val);
 			}
+			//die("<pre>{$txtDebug}</pre>");
 			if ((array_key_exists("id", $attr) && $attr['id'] == -1) || (array_key_exists("id", $opts) && $opts['id'] == -1)) $saved = DB::table($table)->insert($data);
 			else {
 				if (array_key_exists("id", $attr)) $saved = DB::table($table)->where("id", $attr['id'])->update($data);
