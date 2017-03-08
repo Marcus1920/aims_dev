@@ -126,6 +126,7 @@ class FormsController extends Controller {
 		$txtDebug .= "\n  \$req - ".print_r($req,1);
 		$form = Form::where("id", $req['form_id'])->first()->toArray();
 		$txtDebug .= "\n  \$form - ".print_r($form,1);
+		$assigned = array();
 		foreach ($req['users'] AS $uid) {
 			if ($form['table'] == "") {
 
@@ -134,10 +135,14 @@ class FormsController extends Controller {
 				$idNew = \DB::table($form['table'])->insertGetId($dataNew);
 				$txtDebug .= "\n    idNew - ".$idNew;
 				$dataAssigned = array('form_id'=>$form['id'], 'user_id'=>$uid, 'data_id'=>$idNew, 'due_at'=>$req['due_date']);
-				$idAssigned = \DB::table("forms_assigned")->insertGetId($dataAssigned);
+				$assigned[] = \DB::table("forms_assigned")->insertGetId($dataAssigned);
 			}
 		}
-		die("<pre>{$txtDebug}</pre>");
+		$txtDebug .= "\n  \$assigned - ".print_r($assigned,1);
+		//die("<pre>{$txtDebug}</pre>");
+		\Session::flash('success', 'Form assigned '.count($assigned).' to users!');
+		return redirect()->back();
+
 	}
 	
 	public function edit($id) {

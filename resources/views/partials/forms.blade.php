@@ -59,7 +59,11 @@ function closeAssigned(id) {
     url     :"closeAssigned/"+ id + "",
     success :function(data) {
       console.log("  data - ", data);
-
+      $("#tblFormsIn").DataTable().draw();
+    }
+    , complete :function(data) {
+      console.log("  data - ", data);
+      $("#tblFormsIn").DataTable().draw();
     }
   });
 }
