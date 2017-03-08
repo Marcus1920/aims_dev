@@ -89,6 +89,13 @@
                         </a>
                     </div>
 
+                    <div class="pull-left tm-icon">
+                      <a href="" data-toggle="modal" onclick="launchModalFormsIn()" data-target=".modalFormsIn">
+                        <i class="fa fa-edit fa-2x"></i>
+                        <i class="n-count animated" id='countFormsIn'>{{ count($noFormsIn,0) }}</i>
+                      </a>
+                    </div>
+
 
                     <div id="time" class="pull-right">
                         <span id="hours"></span>
@@ -536,6 +543,7 @@
 <div style="margin-top: -20px; margin-left: 5px; position: relative;">@include('version')</div>
 @include('partials.forms')
 @include('forms.data.form')
+@include('forms.data.view')
 @include('partials.refresh')
 @include('partials.timeout')
 

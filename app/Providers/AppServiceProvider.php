@@ -415,7 +415,7 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('noPrivateMessages',$noPrivateMessages);
 
-            $noInboxMessages = Message::where('to','=',\Auth::user()->id)
+						$noInboxMessages = Message::where('to','=',\Auth::user()->id)
                                         ->where('online','=',0)
                                         ->get();
 
@@ -616,7 +616,11 @@ class AppServiceProvider extends ServiceProvider
 
 
 
-
+						$noFormsIn = \DB::table('forms_assigned')->where('user_id','=',\Auth::user()->id)
+							//->where('read','=',0)
+							//->where('online','=',0)
+							->get();
+						$view->with('noFormsIn',$noFormsIn);
           }
 
 

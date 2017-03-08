@@ -54,26 +54,6 @@
 @section('footer')
 <script>
 var editForm = false;
-function doAction(el, id, form_id) {
-	var action = el.options[el.selectedIndex].value;
-	console.log("doAction(el, id, form_id) id - ",id,", form_id - ",form_id,", action - ",action,", el - ",el);
-	if (action == "edit") {
-		$(".modalDataForm").modal();
-		//launchFormModal(id, true);
-		launchDataModal(id);
-	} else if (action == "view") {
-		$(".modalDataView").modal();
-		launchDataModal(id);
-	} else if (action == "editform") {
-		console.log(this);
-		//return redirect("list-forms");
-		var url = '{{url("list-forms")}}/'+form_id;
-		console.log("  url - "+url);
-		window.location.href = url;
-	}
-	el.selectedIndex = 0;
-}
-
 function btnAdd(ev) {
 	var form_id = -1;
 	var selForm = $("#selForm").get(0);

@@ -29,6 +29,7 @@ class DatabaseController extends Controller {
 		$txtDebug = "DatabaseController->getTables(\$basic = false, \$form_id = -1) \$basic - {$basic}, \$form_id - {$form_id}";
 		$tables = [];
 		$schema = \DB::getDoctrineSchemaManager();
+		$schema->getDatabasePlatform()->registerDoctrineTypeMapping("enum", "string");
 		$tables_tmp = $schema->listTables();
 		foreach ($tables_tmp AS $table_tmp) {
 			if ($basic) $tables[$table_tmp->getName()] = $table_tmp->getName();

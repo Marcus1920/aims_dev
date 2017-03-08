@@ -123,6 +123,7 @@ function launchUpdateFormModal(id, clear) {
 			if(data[0] !== null) {
 				$("#modalEditForm #name").val(data[0].name);
 				$("#modalEditForm #purpose").val(data[0].purpose);
+        $("#selTable").val(data[0].table);
 			}
 			else {
 				$("#modalEditForm #name").val('');

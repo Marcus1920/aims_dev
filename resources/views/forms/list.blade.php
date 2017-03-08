@@ -10,7 +10,7 @@
 <h4 class="page-title">Forms</h4>
 <div class="block-area" id="alternative-buttons">
 	<h3 class="block-title">Forms Listing</h3>
-	<a class="btn btn-sm" data-toggle="modal" data-target=".modalAddForm">
+	<a class="btn btn-sm" data-toggle="modal" data-target=".modalAddForm" onclick="">
      Add Form
     </a>
 </div>
@@ -31,6 +31,7 @@
 					<th style="width: 3em;">Id</th>
 					<th>name</th>
 					<th>Purpose</th>
+					<th>Table</th>
 					<th style="width: 3em;">Fields</th>
 					<th style="width: 3em;">Items</th>
 					<th>Actions</th>
@@ -45,6 +46,7 @@
 @include('forms.preview')
 @include('forms.field')
 @include('forms.edit')
+@include('forms.assign')
 @include('forms.add')
 @endsection
 @section('footer')
@@ -56,74 +58,57 @@
 	}*/
 ?>
 <script>
-	function doAction(el, id) {
-		var action = el.options[el.selectedIndex].value;
-		console.log("doAction(el, id) id - ",id,", action - ",action,", el - ",el);
-		if (action == "edit") {
-			$(".modalEditForm").modal();
-			launchUpdateFormModal(id, true);
-		} else if (action == "preview") {
-			$(".modalPreviewForm").modal();
-			launchPreviewFormModal(id);
-		} else if (action == "manage") {
-			console.log(this);
-			//return redirect("list-formsdata");
-			$("#formId").val(id);
-			$("#listForm").submit();
-		}
-		el.selectedIndex = 0;
-	}
+  $(document).ready(function () {
 
-    $(document).ready(function() {
+    $('#formsTable').DataTable({
+      "processing": true,
+      "serverSide": true,
+      "dom": 'frtip',
+      "order": [[0, "desc"]],
+      ajax: {
+        url: "{!! url('/forms-list/')!!}"
+        , complete: function () {
 
-      $('#formsTable').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "dom": 'frtip',
-                "order" :[[0,"desc"]],
-                ajax: {
-									url: "{!! url('/forms-list/')!!}"
-									, complete: function() {
-										
-									}
-									, data: function(d) {
+        }
+        , data: function (d) {
 
-									}
-				        },
-                "columns": [
+        }
+      },
+      "columns": [
 
-                    {data: "id", name: "forms.id"},
-                    {data: "name", name: "forms.name"},
-                    {data: "purpose", name: "forms.purpose"},
-                    {data: "cntFields", name: "cntFields", className: "cntFields"},
-                    {data: "cntData", name: "cntData", className: "cntData"},
-                    {data: "actions",  name: "actions"}
+        {data: "id", name: "forms.id"},
+        {data: "name", name: "forms.name"},
+        {data: "purpose", name: "forms.purpose"},
+        {data: "table", name: "forms.table"},
+        {data: "cntFields", name: "cntFields", className: "cntFields"},
+        {data: "cntData", name: "cntData", className: "cntData"},
+        {data: "actions", name: "actions"}
 
-               ],
+      ],
 
-            "aoColumnDefs": [
-                { "bSearchable": false, "aTargets": [3, 4] },
-                { "bSortable": false, "aTargets": [5] }
-            ]
+      "aoColumnDefs": [
+        {"bSearchable": false, "aTargets": [3, 4, 5]},
+        {"bSortable": false, "aTargets": [6]}
+      ]
 
-         });
-         
-         //console.log("um - ", );
-         
-		});
-		
-		@if (count($errors) > 0)
-			@if (Request::old("formId"))
-				//alert("Launching update form for id <?php echo Request::old("formId"); ?>");
-				$('#modalEditForm').modal('show');
-				//launchUpdateFormModal(<?php echo Request::old("formId"); ?>, false);
-				updateFields();
-			@else
-				$('#modalAddForm').modal('show');
-			@endif
-		@elseif (isset($id))
-    	$('#modalEditForm').modal('show');
-    	launchUpdateFormModal({{$id}});
-    @endif
+    });
+
+    //console.log("um - ", );
+
+  });
+
+	@if (count($errors) > 0)
+		@if (Request::old("formId"))
+			//alert("Launching update form for id <?php echo Request::old("formId"); ?>");
+			$('#modalEditForm').modal('show');
+			//launchUpdateFormModal(<?php echo Request::old("formId"); ?>, false);
+			updateFields();
+		@else
+			$('#modalAddForm').modal('show');
+		@endif
+	@elseif (isset($id))
+		$('#modalEditForm').modal('show');
+		launchUpdateFormModal({{$id}});
+	@endif
 </script>
 @endsection

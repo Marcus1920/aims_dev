@@ -44,8 +44,8 @@
                             @endif
                            @if(isset($userAddCasesNotesPermission) && $userAddCasesNotesPermission->permission_id =='25')
 
-                            <!--<a class="btn btn-xs btn-alt" onClick="launchCaseNotesModal();">Add Case Note</a>-->
-                            {!! Forms::addData(18, "Add Case Note", "{}") !!}
+                            <a class="btn btn-xs btn-alt" onClick="launchCaseNotesModal();">Add Case Note</a>
+                            <!--{!! Forms::addData(18, "Add Case Note", "{'func': function() {alert('Awlo')}}") !!}-->
                             @endif
                            @if(isset($userAddCasesFilesPermission) && $userAddCasesFilesPermission->permission_id =='26')
 

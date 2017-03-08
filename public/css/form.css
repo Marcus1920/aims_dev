@@ -111,7 +111,7 @@ select::-ms-expand {
 
 /* Checkbox + Radio */
 input[type="checkbox"], input[type="radio"]{
-    opacity: 0;
+    /*opacity: 0;*/
 }
 
 .radio, .checkbox, .radio-inline, .checkbox-inline {
@@ -1934,9 +1934,7 @@ label[for=poCheckBox]
 
 
 
-.col-md-6 {
-	white-space: nowrap;
-}
+
 
 label.error {
 	margin-left: 1em;

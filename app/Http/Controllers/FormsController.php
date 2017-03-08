@@ -2,16 +2,89 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use App\Http\Requests\DistrictRequest;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\DatabaseController AS DbController;
 use App\Form;  
 use App\FormField;  
 use App\Http\Requests\FormsRequest;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB as DB;
 //DB::connection()->disableQueryLog();
 
+/**
+ * Class FormsController
+ * @package App\Http\Controllers
+ * @
+ */
 class FormsController extends Controller {
+	public function __construct() {
+		$txtDebug = "FormsController::__construct()";
+		/*try {
+			throw new \Exception("WtF!?");
+		} catch (Exception $ex) {
+			//echo $ex->printStackTrace();
+		}*/
+		//parent::__construct();
+		$tables = array("-- Select --");
+		//$tables = DbController::getTables(true);
+		$tables = array_merge(array(''=>"-- Select --"), DbController::getTables(true));
+		//array_unshift($tables, array(''=>"-- Select --"));
+		$txtDebug .= "\n  \$tables - ".print_r($tables, 1);
+		\View::share('dbTables', $tables);
+		//die("<pre>{$txtDebug}</pre>");
+	}
+
+	public function assigned($uid = null) {
+		$txtDebug = "FormsController::assigned(\$uid = null) \$uid - $uid";
+		$data = \DB::table('forms_assigned')
+			->join("forms", "forms.id", "=", "forms_assigned.form_id")
+			->select('forms_assigned.id','forms_assigned.data_id','forms_assigned.form_id','forms_assigned.due_at','forms_assigned.completed_at','forms_assigned.status', 'forms.name')
+			->where('user_id','=',\Auth::user()->id)
+			//->where('read','=',0)
+			//->where('online','=',0)
+		//	->get()
+		;
+		$txtDebug .= "\n  SQL - ".print_r($data->toSql(),1);
+		$txtDebug .= "\n  \$data - ".print_r($data->get(),1);
+		//die("<pre>{$txtDebug}</pre>");
+		//return $data->get();
+		return \Datatables::of($data)
+			//->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}}, true);" data-target=".modalEditForm">Edit</a> <a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchPreviewFormModal({{$id}});" data-target=".modalPreviewForm">Preview</a>')
+			->addColumn('actions','
+	      <div class="col-md-2">
+	          <select onchange="doAction(this,{{$data_id}}, { assigned_id: {{$id}},form_id: {{$form_id}}, what: \'data\' });" class="form-control input-sm selFormOptions">
+	              <option value="0">Select</option>
+	              <option value="view">View</option>
+	              <option value="edit">Edit</option>
+	              <option value="close">Close</option>
+	              <option value="amend">Amend</option>
+	          </select>
+	      </div>')
+			->make(true);
+	}
+
+	public function closeAssigned($id = null) {
+		$txtDebug = "FormsController::closeAssigned(\$id = null) \$id - {$id}";
+		if ($id) {
+			$data = array('status'=>"complete", 'completed_at'=>date("Y-m-d H:i"));
+			$txtDebug .= "\n  \$data - ".print_r($data,1);
+			$saved = \DB::table("forms_assigned")->where("id", $id)->update($data);
+			$txtDebug .= "\n  \$saved - {$saved}";
+			if ($saved) {
+				\Session::flash('success', 'Assigned form has been successfully closed!');
+				return redirect()->back();
+			}
+			else {
+				\Session::flash('failure', 'Whoops! Error closing assigned form');
+				return redirect()->back()->withInput();
+			}
+		}
+		//die("<pre>{$txtDebug}</pre>");
+	}
+
 	public function index() {
 		$txtDebug = "FormsController->index()";
 		//echo "<pre>$txtDebug<pre>";
@@ -26,18 +99,45 @@ class FormsController extends Controller {
 			//$forms = \DB::table("forms")->leftJoin("forms_fields", "forms.id", "=", "forms_fields.form_id")->select(\DB::raw("forms.`id`,forms.`name`, forms.`purpose`,COUNT(forms_fields.id) as cntFields"))->groupBy("forms.id");
 		//\Session::flash('success', "SQL - ".$forms->toSql());
 		//echo "SQL - ".$forms->toSql();
+		//\View::share('selTables',array("case_notes", "cases"));
+
 		return \Datatables::of($forms)
 			//->addColumn('actions','<a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchUpdateFormModal({{$id}}, true);" data-target=".modalEditForm">Edit</a> <a class="btn btn-xs btn-alt" data-toggle="modal" onClick="launchPreviewFormModal({{$id}});" data-target=".modalPreviewForm">Preview</a>')
 			->addColumn('actions','
 	      <div class="col-md-2">
-	          <select onchange="doAction(this,{{$id}});" class="form-control input-sm selFormOptions">
+	          <select onchange="doAction(this,{{$id}}, { what: \'form\' });" class="form-control input-sm selFormOptions">
 	              <option value="0">Select</option>
+	              <option value="assign">Assign</option>
 	              <option value="edit">Edit</option>
 	              <option value="preview">Preview</option>
 	              <option value="manage">Manage Data</option>
 	          </select>
 	      </div>')
       	->make(true);
+	}
+
+	public function list_forms($id = null) {
+		return view('forms.list', compact('id', $id));
+	}
+
+	public function assign($id = null) {
+		$txtDebug = "FormsController->assign(\$id) \$id - {$id}";
+		$req = $_REQUEST;
+		$txtDebug .= "\n  \$req - ".print_r($req,1);
+		$form = Form::where("id", $req['form_id'])->first()->toArray();
+		$txtDebug .= "\n  \$form - ".print_r($form,1);
+		foreach ($req['users'] AS $uid) {
+			if ($form['table'] == "") {
+
+			} else {
+				$dataNew = array();
+				$idNew = \DB::table($form['table'])->insertGetId($dataNew);
+				$txtDebug .= "\n    idNew - ".$idNew;
+				$dataAssigned = array('form_id'=>$form['id'], 'user_id'=>$uid, 'data_id'=>$idNew, 'due_at'=>$req['due_date']);
+				$idAssigned = \DB::table("forms_assigned")->insertGetId($dataAssigned);
+			}
+		}
+		die("<pre>{$txtDebug}</pre>");
 	}
 	
 	public function edit($id) {
@@ -50,14 +150,25 @@ class FormsController extends Controller {
   }
   
   public function store(FormsRequest $request) {
+		$txtDebug = "FormsController->store(\$request)";
+		if ($request) $txtDebug .= " \$request - ".print_r($request->input(),1);
   	$form             = new Form();
 		$form->name       = $request['name'];
 		$form->slug       = $request['slug'];
 		$form->purpose   = $request['purpose'];
-		$form->created_by = \Auth::user()->id;
-		$form->save();
-		\Session::flash('success', $request['name'].' form has been successfully added!');
-		return redirect()->back()->withInput();
+		$form->table = $request['table'];
+		$form->created_by = 3;
+		//die("<pre>{$txtDebug}</pre>");
+		$saved = $form->save();
+		if ($saved) {
+			\Session::flash('success', $request['name'].' form has been successfully added!');
+			return redirect()->back();
+		}
+		else {
+			\Session::flash('failure', 'Whoops! Error updating Form Data');
+			return redirect()->back()->withInput();
+		}
+
 	}
   
   /**
@@ -67,19 +178,27 @@ class FormsController extends Controller {
   * @return Response
   */
   public function update(FormsRequest $request) {
+		$txtDebug = "FormsController->update(\$request)";
+		if ($request) $txtDebug .= " \$request - ".print_r($request->input(),1);
   	$form               = Form::where('id',$request['formId'])->first();
     $form->name         = $request['name'];
     $form->purpose   = $request['purpose'];
+		$form->table = $request['table'];
     $form->updated_by   = \Auth::user()->id;
     //die("<pre>FormsController->update(\$request) \$request - ".print_r($request->all(),1)."</pre>");
+		//die("<pre>{$txtDebug}</pre>");
     $saved = $form->save();
     $saved = $form->saveFields($request, $this);
-    \Session::flash('success', 'well done! Form '.$request['name'].' has been successfully updated!');
+
     //die("<pre>FormsController->update(\$request) \$request - ".print_r($request->all(),1)."</pre>");
     //\Session::flash('success', "REQUEST<pre>".print_r($request, 1)."</pre>");
-    if ($saved) return redirect("list-forms");
-    else 
-    return redirect()->back();
+    if ($saved) {
+			\Session::flash('success', 'well done! Form '.$request['name'].' has been successfully updated!');
+    	return redirect("list-forms");
+		} else {
+			\Session::flash('failure', 'Whoops! Error updating Form Data');
+    	return redirect()->back()->withInput();
+		}
   }
 }
 ?>

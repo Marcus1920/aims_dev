@@ -6,10 +6,11 @@ use App\FormField;
 
 class Form extends Eloquent {
 	protected $table    = 'forms';
-	protected $fillable = ['name','slug','active', 'purpose'];
+	protected $fillable = ['name','slug','active', 'table', 'purpose'];
 	
 	public function save(array $options = array()) {
 		$txtDebug = "save(\$options) \$options - ".print_r($options,1);
+		//echo "<pre>$txtDebug<pre>";
 		//die("<pre>$txtDebug<pre>");
 		return parent::save($options);
 	}

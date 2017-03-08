@@ -65,7 +65,7 @@
         ///$datatables->filterColumn("created_att", "whereRaw", "DATE_FORMAT(forms_data.created_at, '%a, %d %b %Y<br>at %H:%i') = '%34%'");
         $datatables->addColumn('actions','
 	      <div class="col-md-2">
-	          <select onchange="doAction(this,{{$id}},{{$form_id}});" class="form-control input-sm selFormOptions">
+	          <select onchange="doAction(this,{{$id}},{what: \'data\', form_id: {{$form_id}} });" class="form-control input-sm selFormOptions">
 	              <option value="0">Select</option>
 	              <option value="edit">Edit</option>
 	              <option value="view">View</option>
@@ -77,15 +77,49 @@
   	
   	public function edit($id, $form_id = -1) {
   		$txtDebug = "FormsDataController->edit(\$id, \$form_id) \$id - {$id}, \$form_id - {$form_id}";
-  		
-			if ($id != -1) $formdata = FormsData::where('id',$id)->first()->toArray();
-			else $formdata = new FormsData(array('form_id'=>$form_id));
+			$formdata = null;
+			$data = null;
+			//die("<pre>{$txtDebug}</pre>");
+			if ($id != -1) {
+
+				if ($form_id == -1) $form = Form::where('id',$form_id)->first()->toArray();
+				else $form = Form::where('id',$form_id)->first()->toArray();
+				if ($form['table']) {
+					$formdata = new FormsData(array('form_id'=>$form_id));
+					$formdata = $formdata->toArray();
+					$data = \DB::table($form['table'])->where("id",$id)->first();//->toArray();
+					$data = (array)$data;
+					$data = json_encode($data);
+					$formdata['data'] = $data;
+					///$txtDebug .= "\n  \$formdata - ".print_r($formdata, 1)."";
+					///die("<pre>{$txtDebug}</pre>");
+				} else {
+					$formdata = FormsData::where('id',$id)->first()->toArray();
+				}
+				$formdata['form'] = $form;
+			}
+			else {
+				$formdata = new FormsData(array('form_id'=>$form_id));
+				$formdata = $formdata->toArray();
+				$form = Form::where('id',$formdata['form_id'])->first()->toArray();
+				$formdata['form'] = $form;
+			}
 			$txtDebug .= "\n  \$formdata - ".print_r($formdata, 1)."";
 			//die("<pre>{$txtDebug}</pre>");
-			$form = Form::where('id',$formdata['form_id'])->first()->toArray();
+
 			$fields = FormField::where('form_id',$formdata['form_id'])->orderBy("order")->get()->toArray();
-			$formdata['form'] = $form;
-			$data = json_decode($formdata['data']);
+
+
+			if (array_key_exists("data", $formdata)) {
+				if (is_string($formdata['data'])) $data = json_decode($formdata['data']);
+				else $data = $formdata['data'];
+			}
+			else {
+				$data = array();
+				foreach ($fields AS $fi=>$f) {
+					$data[$f['name']] = "";
+				}
+			}
 			$txtDebug .= "\n  \$data - ".print_r($data, 1)."";
 			$txtDebug .= "\n  \$formdata - ".print_r($formdata, 1)."";
 			$txtDebug .= "\n  \$fields - ".print_r($fields, 1)."";
@@ -112,33 +146,47 @@
   		$txtDebug .= ", \$input - ".print_r($input, 1);
   		//$txtDebug = "FormsDataController->update(FormsRequest \$request) \$request - ".print_r($request, 1).", \$input - ".print_r($input,1);
   		//die("<pre>{$txtDebug}</pre>");
+  		//$ajax = $input['ajax'] ?: 0;
+  		$ajax = array_key_exists("ajax", $input) ? $input['ajax'] : 0;
+  		//$ajax = var_export((bool)$input['ajax'],1);
   		$id = $input['id'];
   		$form_id = $input['formId'];
   		$fields = FormField::where('form_id',$form_id)->orderBy("order")->get()->toArray();
   		$table = "";
   		foreach ($fields AS $fi=>$f) if ($f['table']) $table = $f['table'];
-  		$txtDebug .= "\n  \$table - {$table}";
+  		$txtDebug .= "\n  \$table - {$table}, \$ajax - {$ajax} ( == true - ".($ajax == true).", == false - ".($ajax == false).")";
+			$form = Form::where('id',$form_id)->first();//->toArray();
+			$arrForm = $form->toArray();
+			$txtDebug .= "\n  \$form - ".print_r($form,1);
+			$txtDebug .= "\n  \$arrForm - ".print_r($arrForm,1);
   		//if ($table != "") $formdata->table = $table;
-  		if ($id != -1) $formdata = FormsData::where('id',$id)->first();//->toArray();
-  		else $formdata = new FormsData(array('form_id'=>$form_id, 'table'=>$table));
+			if ($table) {
+				$formdata = new FormsData(array('form_id'=>$form_id, 'table'=>$table));
+			} else {
+				if ($id != -1) $formdata = FormsData::where('id',$id)->first();//->toArray();
+				else $formdata = new FormsData(array('form_id'=>$form_id, 'table'=>$table));
+			}
+
   		$data = json_encode($input['data']);
+			$txtDebug .= "\n  \$formdata - ".print_r($formdata,1);
+			///die("<pre>{$txtDebug}</pre>");
   		$formdata->data = $data;
-  		$form = Form::where('id',$form_id)->first();//->toArray();
+
   		
   		$txtDebug .= "\n  \$data - ".print_r($data,1);
-  		$txtDebug .= "\n  \$formdata - ".print_r($formdata,1);
-  		//$txtDebug .= "\n  \$form - ".print_r($form,1);
+  		//$txtDebug .= "\n  \$formdata - ".print_r($formdata,1);
+  		//
   		$txtDebug .= "\n  \$fields - ".print_r($fields, 1)."";
   		
-  		
+  		$opts = array('id'=>$id, 'table'=>$table);
   		
   		//die("<pre>{$txtDebug}</pre>");
-  		$saved = $formdata->save();
+  		$saved = $formdata->save($opts);
   		if ($saved) \Session::flash('success', 'well done! Form Data has been successfully updated!');
   		else \Session::flash('failure', 'Whoops! Error updating Form Data');
-  		
-  		///return redirect()->back()->withInput();
-  		return json_encode($saved);
+
+  		if ($ajax) return json_encode($saved);
+  		else return redirect()->back()->withInput();
 		}
 		
   	public function anyFormId($form_id = -1) {

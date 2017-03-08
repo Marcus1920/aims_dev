@@ -1070,16 +1070,21 @@ Route::post('session/ajaxCheck', ['uses' => 'SessionController@ajaxCheck', 'as' 
 Route::post('resetSession', ['uses' => 'SessionController@resetSession', 'as' => 'resetSession']);
 
 
-Route::get('list-forms/{id?}', ['middleware' => 'resetLastActive', function ($id = null) {
+/*Route::get('list-forms/{id?}', ['middleware' => 'resetLastActive', function ($id = null) {
     return view('forms.list', compact('id', $id));
 }]);
 Route::get('list-forms', ['middleware' => 'resetLastActive', function () {
     return view('forms.list');
-}]);
+}]);*/
+Route::get('list-forms/{id?}', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@list_forms']);
 Route::get('forms-list', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@index']);
 Route::get('forms/{id}', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@edit']);
 Route::post('addForm', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@store']);
+Route::post('assignForm', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@assign']);
+Route::get('closeAssigned/{id}', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@closeAssigned']);
 Route::post('updateForm', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@update']);
+
+Route::get('forms/assigned/{uid}', ['middleware' => 'resetLastActive', 'uses' => 'FormsController@assigned']);
 
 Route::get('forms/database/tables', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getTables']);
 Route::get('forms/database/tables/{name}', ['middleware' => 'resetLastActive', 'uses' => 'DatabaseController@getTable']);
@@ -1094,6 +1099,8 @@ Route::any('list-formsdata/{form_id}', ['middleware' => 'resetLastActive', 'uses
 Route::controller('list-formsdata', 'FormsDataController', array('getData'=>'formsdata.data','anyIndexx'=>"list-formss"));
 Route::get('forms/data/{id}/{form_id?}', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@edit']);
 Route::post('updateFormData', ['middleware' => 'resetLastActive', 'uses' => 'FormsDataController@update']);
+
+
 
 //Route::controller('formsdata', 'FormsDataController');
 
