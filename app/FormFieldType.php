@@ -9,7 +9,7 @@ use Symfony\Component\DomCrawler\Crawler;
 		var $type = "a";
 		
 		function __construct($type = "") {
-			echo "<br>FormFieldType()";
+			//echo "<br>FormFieldType()";
 			if ($type) $this->$type = $type;
 		}
 		
@@ -23,15 +23,15 @@ use Symfony\Component\DomCrawler\Crawler;
 			} else {
 				$currencies_tmp = [];
 				$ch = curl_init();
-				//curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1/mirrors/Wikipedia/en.wikipedia.org/wiki/Currency.html");
-				curl_setopt($ch, CURLOPT_URL, "https://en.wikipedia.org/wiki/Currency");
+				if (in_array($_SERVER['HTTP_HOST'], array("127.0.0.1", "localhost.net"))) curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1/mirrors/Wikipedia/en.wikipedia.org/wiki/Currency.html");
+				else curl_setopt($ch, CURLOPT_URL, "https://en.wikipedia.org/wiki/Currency");
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 				curl_setopt($ch, CURLOPT_VERBOSE, 1);
 				$grabbed = curl_exec($ch);
 				if (strlen($grabbed) == 0) $txtDebug .= "\n  Think there was an error: ".curl_error($ch);
 				curl_close($ch);
-				$txtDebug .= "\n  Grabbed content: ".strlen($grabbed)."bytes";
+				$txtDebug .= "\n  Grabbed content: ".number_format(strlen($grabbed))." bytes";
 				if (strlen($grabbed) == 0) die("<pre>$txtDebug<pre>");
 				$crawler = new Crawler($grabbed);
 				foreach ($crawler as $domElement) {
@@ -60,7 +60,8 @@ use Symfony\Component\DomCrawler\Crawler;
 					$currency['name'] = ucwords(strtolower($c[1]));
 					$currency['iso'] = explode(" ",$c[2])[0];
 					$htmlsymbols = ['CNY'=>"&yen;",'EUR'=>"&euro;", 'INR'=>"&#8360;", 'JPY'=>"&yen;", 'KRW'=>"&#8361;", 'TRY'=>"&#8356;"];
-					$htmlsymbols = [];
+//					$htmlsymbols = [];
+
 					if (!array_key_exists($currency['iso'], $htmlsymbols)) {
 					$currency['symbol'] = explode(" ",$c[2])[1];
 					$currency['symbol'] = trim($currency['symbol'], " ()");
@@ -73,6 +74,7 @@ use Symfony\Component\DomCrawler\Crawler;
 			}
 			usort($currencies, "self::sortCurrencies");
 			$txtDebug .= "\n  \$currencies: ".print_r($currencies, 1)."";
+			//$txtDebug .= "\n  \$_SERVER - ".print_r($_SERVER,1);
 			//die("<pre>$txtDebug<pre>");
 			return $currencies;
 		}

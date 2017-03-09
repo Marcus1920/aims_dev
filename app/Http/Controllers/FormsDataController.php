@@ -5,6 +5,7 @@
 	use App\Form;
 	use App\FormField;
 	use App\FormsData;
+	use App\Http\Controllers\DatabaseController AS DbController;
 	use App\Http\Requests\FormsDataRequest;
 	
 	use Illuminate\Http\Request;
@@ -111,7 +112,7 @@
 
 
 			if (array_key_exists("data", $formdata)) {
-				if (is_string($formdata['data'])) $data = json_decode($formdata['data']);
+				if (is_string($formdata['data'])) $data = json_decode($formdata['data'], true);
 				else $data = $formdata['data'];
 			}
 			else {
@@ -120,6 +121,23 @@
 					$data[$f['name']] = "";
 				}
 			}
+
+			foreach ($fields AS $fi=>$f) {
+				$opts = json_decode($f['options'], true);
+				if ($f['type'] == "rel") {
+					$txtDebug .= "\n  Getting related shit for {$f['name']}, \$opts - ".print_r($opts,1);
+					$key = $data[$f['name']];
+					$val = [];
+					$dbTable = DbController::getTable($opts['table']);
+					$primary = implode(",", $dbTable['primary']);
+					$txtDebug .= "\n    \$dbTable - ".print_r($dbTable,1);
+					$rel = (array)\DB::table($opts['table'])->where($primary, $key)->first();
+					$txtDebug .= "\n    \$rel - ".print_r($rel,1);
+					foreach ($opts['display'] AS $display) $val[] = $rel[$display];
+					$data[$f['name']] = array( $data[$f['name']], implode(" ", $val) );
+				}
+			}
+
 			$txtDebug .= "\n  \$data - ".print_r($data, 1)."";
 			$txtDebug .= "\n  \$formdata - ".print_r($formdata, 1)."";
 			$txtDebug .= "\n  \$fields - ".print_r($fields, 1)."";

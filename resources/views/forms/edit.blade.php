@@ -1,7 +1,8 @@
 <?php
 	use App\Http\Controllers\DatabaseController AS DbController;
 	$dbTables = DbController::getTables(true);
-	array_unshift($dbTables, "-- None --");
+	//array_unshift($dbTables, "-- None --");
+$dbTables = array_merge(array(''=>"-- None --"), $dbTables);
 	//echo "errors<pre>".print_r($errors, 1)."</pre>";
 	//echo "field<pre>".print_r(Input::old("field"), 1)."</pre>";
 	//ini_set("memory_limit", "256M");
@@ -14,7 +15,7 @@
 		, 'chkSystem'=>"Include system fields"
 		, 'chkOverwrite'=>"Overwrite any existing customizations"
 	);
-	$fuck = "you";
+	//die("\$dbTables<pre>".print_r($dbTables,1)."</pre>");
 ?>
 <!-- Modal Default -->
 <div class="modal fade modalEditForm" id="modalEditForm" tabindex="-1" role="dialog" aria-hidden="true">
@@ -123,7 +124,8 @@ function launchUpdateFormModal(id, clear) {
 			if(data[0] !== null) {
 				$("#modalEditForm #name").val(data[0].name);
 				$("#modalEditForm #purpose").val(data[0].purpose);
-        $("#selTable").val(data[0].table);
+        if (data[0].table) $("#selTable").val(data[0].table);
+        else $("#selTable").val("");
 			}
 			else {
 				$("#modalEditForm #name").val('');
@@ -365,6 +367,11 @@ function getFieldIndex(template) {
 		console.log("  regex - ",regex);
 		index = regex[1];
 	}
+  console.log("  index - ",index);
+	if (index == -1) {
+	  index = $("#formFields .fieldTemplate").length;
+  }
+  console.log("  index - ",index);
 	return index;
 }
 
@@ -594,6 +601,11 @@ function updateField(template, vals, index) {
 		$(this).tooltip("destroy");
 		$(this).tooltip( {placement:"right", track: true } );
 	});
+
+  $(template).find("[id^='fieldType']").on("change", function(ev) {
+    console.log("fieldType.change: ev - ", ev, ", this - ",this);
+    selectType(template, this.options[this.selectedIndex].value);
+  });
 }
 
 function updateFieldss() {
@@ -634,10 +646,7 @@ function updateFieldss() {
 		});
 		var selType = $(el).find("[id^='fieldType']").get(0);
 		///selectType(el, selType.options[selType.selectedIndex].value);
-		$(el).find("[id^='fieldType']").on("change", function(ev) {
-			console.log("fieldType.change: ev - ", ev, ", this - ",this);
-			selectType(el, this.options[this.selectedIndex].value);
-		});
+
 		$(el).find("[id^='btnAddChoice']").on("click", function(ev) {
 			addChoice(el);
 		});
