@@ -109,7 +109,7 @@
 			//die("<pre>{$txtDebug}</pre>");
 
 			$fields = FormField::where('form_id',$formdata['form_id'])->orderBy("order")->get()->toArray();
-
+			$txtDebug .= "\n  \$fields - ".print_r($fields, 1)."";
 
 			if (array_key_exists("data", $formdata)) {
 				if (is_string($formdata['data'])) $data = json_decode($formdata['data'], true);
@@ -121,7 +121,7 @@
 					$data[$f['name']] = "";
 				}
 			}
-
+			//die("<pre>{$txtDebug}</pre>");
 			foreach ($fields AS $fi=>$f) {
 				$opts = json_decode($f['options'], true);
 				if ($f['type'] == "rel") {
@@ -130,10 +130,11 @@
 					$val = [];
 					$dbTable = DbController::getTable($opts['table']);
 					$primary = implode(",", $dbTable['primary']);
-					$txtDebug .= "\n    \$dbTable - ".print_r($dbTable,1);
+					$txtDebug .= "\n    \$key - ".print_r($key,1);
+					//$txtDebug .= "\n    \$dbTable - ".print_r($dbTable,1);
 					$rel = (array)\DB::table($opts['table'])->where($primary, $key)->first();
 					$txtDebug .= "\n    \$rel - ".print_r($rel,1);
-					foreach ($opts['display'] AS $display) $val[] = $rel[$display];
+					if (count($rel) > 0) foreach ($opts['display'] AS $display) $val[] = $rel[$display];
 					$data[$f['name']] = array( $data[$f['name']], implode(" ", $val) );
 				}
 			}
